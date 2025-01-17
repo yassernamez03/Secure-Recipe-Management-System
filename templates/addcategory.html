@@ -1,30 +1,207 @@
-{% extends 'base.html' %} {% block content %}
-    
-    
-<div class="container">                          
-  <h3>Add Category</h3>
-  <div class="row">
-    <form action="{{ url_for('insert_category') }}" method="POST" class="col s12">
-              
-                   <div class="row">
-                       <div class="input-field col s12">
-                           <i class="material-icons prefix">poll</i>
-                           <input id="category_name" name="category_name" type="text" class="validate" value="">
-                           <label for="category_name">Category Name</label>
-                       </div>
-                   </div>
-                   <div class="row">
-                        <button class="btn waves-effect waves-light" type="submit" name="action">Add Category
-                           <i class="material-icons right">playlist_add</i>
-                        </button>
-                        
-                        <a href="{{ url_for('categories') }}" class="waves-effect waves-light btn grey">
-                        <i class="material-icons right">cancel</i>Cancel</a>
-                   </div>
-               
-       </div>
-     </form>
-   </div>
- </div>  
- 
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  :root {
+    --text: #2c3e50;
+    --border: rgba(0, 0, 0, 0.1);
+    --grey: #64748b;
+    --grey-hover: #4b5563;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 6em auto 2em;
+    padding: 0 2em;
+    animation: fadeIn 0.3s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .form-card {
+    background: white;
+    padding: 2em;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  h3 {
+    color: var(--text);
+    font-size: 2em;
+    margin: 0 0 1em 0;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .input-field {
+    position: relative;
+    margin: 2em 0;
+  }
+
+  .input-field .material-icons.prefix {
+    position: absolute;
+    top: 50%;
+    left: -0.2em;
+    transform: translateY(-50%);
+    color: var(--grey);
+    transition: color 0.3s ease;
+  }
+
+  .input-field input {
+    width: 100%;
+    padding: 1em 1em 1em 3.5em;
+    font-size: 1.1em;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    outline: none;
+    background: white;
+  }
+
+  .input-field input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+  }
+
+  .input-field input:focus+label,
+  .input-field input:not(:placeholder-shown)+label {
+    top: 0;
+    transform: translateY(-2.5em) scale(0.85);
+    color: var(--primary);
+  }
+
+  .input-field input:focus~.material-icons.prefix {
+    color: var(--primary);
+  }
+
+  .input-field label {
+    position: absolute;
+    left: 3.2em;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1em;
+    color: var(--grey);
+    transition: all 0.2s ease-out;
+    background: white;
+    padding: 0 0.5em;
+    pointer-events: none;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 1em;
+    margin-top: 2em;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75em;
+    padding: 1em 2em;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1em;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn .material-icons {
+    font-size: 1.2em;
+  }
+
+  .waves-effect.waves-light.btn {
+    background-color: var(--primary);
+    color: white;
+  }
+
+  .waves-effect.waves-light.btn:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
+  }
+
+  .waves-effect.waves-light.btn.grey {
+    background-color: var(--grey);
+    color: white;
+  }
+
+  .waves-effect.waves-light.btn.grey:hover {
+    background-color: var(--grey-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Error state */
+  .input-field.error input {
+    border-color: #EF4444;
+  }
+
+  .input-field.error .helper-text {
+    color: #EF4444;
+    font-size: 0.9em;
+    margin-top: 0.5em;
+    margin-left: 3.5em;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .container {
+      padding: 0 1em;
+      margin-top: 4em;
+    }
+
+    .form-card {
+      padding: 1.5em;
+    }
+
+    .button-group {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+
+
+<div class="container">
+  <div class="form-card">
+    <h3>Add Category</h3>
+    <form action="{{ url_for('insert_category') }}" method="POST">
+      <div class="input-field">
+        <i class="material-icons prefix">restaurant_menu</i>
+        <input id="category_name" name="category_name" type="text" class="validate" placeholder="" required>
+        <label for="category_name">Category Name</label>
+      </div>
+
+      <div class="button-group">
+        <button class="btn waves-effect waves-light" type="submit" name="action">
+          <i class="material-icons">add</i>
+          Add Category
+        </button>
+        <a href="{{ url_for('categories') }}" class="waves-effect waves-light btn grey">
+          <i class="material-icons">arrow_back</i>
+          Back
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
 {% endblock %}

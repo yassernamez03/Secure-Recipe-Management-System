@@ -1,76 +1,126 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<!--Search Box--> 
-<div class="container search-form">
-  <div class="row input-field search-div">
-    <h6>Select one of the options to search for your favourite recipes</h6>
-    <form class="search-form-form" action="/get_recipes">
-        <div class="row">
-             <div class="form-field-div col s6 m4">
-                <p>Keyword search:</p>
-                <input type="text" name="recipe_name" value="">
-             </div> 
-             
-             <div class="form-field-div col s6 m4">
-                <p>Prep. time search:</p>
-                <input type="text" name="preparation_time" value="">
-             </div>
-          
-              <div class="form-field-div col s12 m4">
-                <p>Cuisines:</p>
-                <select name="category_name">
-                    <option class="disable" value="Choose your option" disabled selected >Choose your option</option>
-                    {% for category in categories %}
-                      <option value={{category.category_name}}>{{category.category_name}}</option>
-                    {% endfor %}
-                  </select>
-              </div>
+<div class="container">
+
+  <div class="search-container">
+    <div class="search-header">
+      <h3>Find Your Perfect Recipe</h3>
+      <p>Search through thousands of delicious recipes</p>
+    </div>
+
+    <form class="search-form" action="/get_recipes">
+      <div class="search-wrapper">
+        <!-- Main Search Field -->
+        <div class="search-field-main">
+          <div class="search-icon">
+            <i class="material-icons">search</i>
+          </div>
+          <input type="text" name="recipe_name" placeholder="Search recipes (e.g., 'Chocolate Cake', 'Pasta'...)"
+            class="main-search-input">
         </div>
-        <div class="row">
-              <div class="col s6 l4">
-                 <input class="btn btn-search" type="submit" value="Search">
-              </div>
+
+        <!-- Advanced Search Toggle -->
+        <button type="button" class="advanced-toggle" onclick="toggleAdvanced()">
+          <i class="material-icons">tune</i>
+          <span>Filters</span>
+        </button>
+      </div>
+
+      <!-- Advanced Search Options -->
+      <div class="advanced-search" id="advancedSearch">
+        <div class="advanced-grid">
+          <!-- Preparation Time -->
+          <div class="advanced-field">
+            <label>
+              <i class="material-icons">schedule</i>
+              Prep Time
+            </label>
+            <select name="preparation_time" class="time-select">
+              <option value="">Any time</option>
+              <option value="15">Under 15 mins</option>
+              <option value="30">Under 30 mins</option>
+              <option value="60">Under 1 hour</option>
+              <option value="120">Under 2 hours</option>
+            </select>
+          </div>
+
+          <!-- Cuisine Type -->
+          <div class="advanced-field">
+            <label>
+              <i class="material-icons">restaurant_menu</i>
+              Cuisine
+            </label>
+            <select name="category_name" class="cuisine-select">
+              <option value="">All cuisines</option>
+              {% for category in categories %}
+              <option value={{category.category_name}}>{{category.category_name}}</option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
+      </div>
+
+      <!-- Search Button -->
+      <button type="submit" class="search-submit">
+        <span>Search Recipes</span>
+        <i class="material-icons">arrow_forward</i>
+      </button>
     </form>
   </div>
-</div>
 
 
-<!--Recipes Cards-->
+  <!--Recipes Cards-->
 
-<div class="container">
- <div class="row recipes-list">
-   
-  {% if recipes.count() <= 0 %}
-    <div>
-      <p>No cuisine found</p>
-    </div>
-  {% else %}
+  <div class="recipes-grid">
+    {% if recipes.count() <= 0 %}
+      <div class="no-results">
+        <i class="material-icons">sentiment_dissatisfied</i>
+        <p>No recipes found. Try adjusting your search.</p>
+      </div>
+    {% else %}
       {% for recipe in recipes %}
-              <div class="col s12 m6 l4">
-                <div class="card hoverable">
-                  <div class="card-image">
-                    <a href="{{url_for('recipe_single', recipe_id=recipe._id)}}"><img class="card-image-img" src="{{recipe.photo_url}}"></a>
-                    <a class="btn-floating halfway-fab waves-effect waves-light red" href="{{url_for('recipe_single', recipe_id=recipe._id)}}"><i class="material-icons btn-icon">import_contacts</i></a>
-                    <div id="category"><a>{{recipe.category_name}}</a></div>
-                  </div>
-                  
-                  <div class="card-content">
-                    <a href="{{url_for('recipe_single', recipe_id=recipe._id)}}"><span class="card-title">{{recipe.recipe_name}}</span></a>
-                    <div class="icon-cook-div"><i class="icon-cook material-icons prefix">timer</i><p class="descript">{{recipe.preparation_time}}</p></div>
-  
-                  </div>
-                  
-                  <div class="card-content red lighten-5 links-botton-card">
-                    <a class="edit-item-link" href="{{url_for('edit_recipe', recipe_id=recipe._id)}}">Edit ✎</a> <a class="delete-item-link"href="{{url_for('delete_recipe', recipe_id=recipe._id)}}" onclick="return confirm('Are you sure?')">Delete ✗</a>
-                  </div>
-                  
-                </div>
-              </div>
+        <div class="recipe-card">
+          <div class="recipe-image">
+            <img src="{{recipe.photo_url}}" alt="{{recipe.recipe_name}}">
+            <span class="cuisine-tag">{{recipe.category_name}}</span>
+            <a class="view-recipe" href="{{url_for('recipe_single', recipe_id=recipe._id)}}">
+              <i class="material-icons">visibility</i>
+            </a>
+          </div>
+          
+          <div class="recipe-content">
+            <h3 class="recipe-title">
+              <a href="{{url_for('recipe_single', recipe_id=recipe._id)}}">{{recipe.recipe_name}}</a>
+            </h3>
+            <div class="recipe-meta">
+              <i class="material-icons">timer</i>
+              <span>{{recipe.preparation_time}}</span>
+            </div>
+          </div>
+          
+          <div class="recipe-actions">
+            <a class="edit-btn" href="{{url_for('edit_recipe', recipe_id=recipe._id)}}">
+              <i class="material-icons">edit</i>
+              Edit
+            </a>
+            <a class="delete-btn" href="{{url_for('delete_recipe', recipe_id=recipe._id)}}" 
+               onclick="return confirm('Are you sure you want to delete this recipe?')">
+              <i class="material-icons">delete</i>
+              Delete
+            </a>
+          </div>
+        </div>
       {% endfor %}
-  {% endif %}
+    {% endif %}
+  </div>
 </div>
-</div>
-    
+<script>
+  function toggleAdvanced() {
+    const advancedSearch = document.getElementById('advancedSearch');
+    const currentDisplay = window.getComputedStyle(advancedSearch).display;
+    advancedSearch.style.display = currentDisplay === 'none' ? 'block' : 'none';
+  }
+</script>
+
 {% endblock %}

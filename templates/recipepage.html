@@ -1,47 +1,132 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% block content %}
 
+<div class="recipe-page">
+  {% for recipe in recipes %}
+    <!-- Hero Section -->
+    <div class="recipe-hero">
+      <div class="hero-image" style="background-image: url('{{recipe.photo_url}}')">
+        <div class="hero-overlay"></div>
+      </div>
+      
+      <div class="recipe-header container">
 
-    <div class="row">
-        <div class="col s12 m12 l8 offset-l2 margin-bottom-4vh">
-            <div class="card card-single-recipe">
-            {% for recipe in recipes %}
-                    <div class="card-content">
-                        <span><a href="{{url_for('recipe_single', recipe_id=recipe._id)}}"
-                                        class="recipe-title-text card-title-recipep">{{recipe.recipe_name}}</a></span>  
-                        <div class="icon-cook-div"><i class="icon-cook material-icons prefix">timer</i><p class="descript">Preparation Time: {{recipe.preparation_time}}</p></div>
-                        <li class="divider"></li>
-                        <br>
-                        <p>{{recipe.recipe_intro}}</p><br>                        
-                    </div>
-                    
-                    <div class="card-image responsive-img">
-                       <img class="responsive-img" src="{{recipe.photo_url}}"></img>
-                    </div>
-                    
-                    <div>
-                      <div class="card-content ingredients-box">
-                           <strong>Ingredients: </strong>
-                           <li class="divider"></li>
-                           <br>
-                           <p> {{recipe.ingredients}} </p> 
-                      </div> 
-                    </div>
-                    
-                    <div class="card-content">
-                         <strong>How to Make it: </strong>
-                         <li class="divider"></li>
-                         <br> 
-                         <p>{{recipe.description}}</p>                       
-                    </div>
-                    
-                    <div class="card-content red lighten-5 links-botton-card">
-                        <a class="edit-item-link" href="{{url_for('edit_recipe', recipe_id=recipe._id)}}">Edit ✎</a> <a class="delete-item-link"href="{{url_for('delete_recipe', recipe_id=recipe._id)}}" onclick="return confirm('Are you sure?')">Delete ✗</a>
-                    </div>
-                   
-            {% endfor %}
+        <div class="recipe-title-wrapper">
+          <h1>{{recipe.recipe_name}}</h1>
         </div>
-    </div>
-  </div>
 
+        <div class="recipe-meta">
+          <div class="meta-item">
+            <i class="material-icons">schedule</i>
+            <div class="meta-details">
+              <span class="meta-label">Prep Time</span>
+              <span class="meta-value">{{recipe.preparation_time}}</span>
+            </div>
+          </div>
+          <div class="meta-item">
+            <i class="material-icons">people</i>
+            <div class="meta-details">
+              <span class="meta-label">Servings</span>
+              <span class="meta-value">4-6 people</span>
+            </div>
+          </div>
+          <div class="meta-item">
+            <i class="material-icons">local_fire_department</i>
+            <div class="meta-details">
+              <span class="meta-label">Difficulty</span>
+              <span class="meta-value">Medium</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="recipe-content container">
+      <!-- Introduction Section -->
+      <section class="recipe-intro">
+        <div class="section-header">
+          <h2>About this Recipe</h2>
+          <div class="admin-actions">
+            <a href="{{url_for('edit_recipe', recipe_id=recipe._id)}}" class="admin-btn edit-btn">
+              <i class="material-icons">edit</i>
+              Edit Recipe
+            </a>
+            <a href="{{url_for('delete_recipe', recipe_id=recipe._id)}}" 
+               class="admin-btn delete-btn"
+               onclick="return confirm('Are you sure you want to delete this recipe? This action cannot be undone.')">
+              <i class="material-icons">delete</i>
+              Delete Recipe
+            </a>
+          </div>
+        </div>
+        <p class="intro-text">{{recipe.recipe_intro}}</p>
+      </section>
+
+      <div class="recipe-main-grid">
+        <!-- Ingredients Section -->
+        <section class="ingredients-section">
+          <div class="sticky-sidebar">
+            <div class="ingredients-header">
+              <h2>
+                <i class="material-icons">restaurant_menu</i>
+                Ingredients
+              </h2>
+              <button class="servings-toggle" onclick="adjustServings()">
+                <i class="material-icons">people</i>
+                Adjust Servings
+              </button>
+            </div>
+            <div class="ingredients-content">
+              {{recipe.ingredients | safe}}
+            </div>
+          </div>
+        </section>
+
+        <!-- Instructions Section -->
+        <section class="instructions-section">
+          <h2>
+            <i class="material-icons">menu_book</i>
+            Instructions
+          </h2>
+          <div class="instructions-content">
+            {{recipe.description | safe}}
+          </div>
+        </section>
+      </div>
+
+      <!-- Tips Section -->
+      <section class="tips-section">
+        <h2>
+          <i class="material-icons">lightbulb</i>
+          Chef's Tips
+        </h2>
+        <div class="tips-content">
+          <ul>
+            <li>Make sure all ingredients are at room temperature before starting.</li>
+            <li>You can prepare the sauce ahead of time and store it in the refrigerator.</li>
+            <li>Let the dish rest for 5 minutes before serving for best results.</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+  {% endfor %}
+</div>
+
+<style>
+    .recipe-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #8cfff3;
+        font-size: 0.9rem;
+    }
+</style>
+<script>
+function adjustServings() {
+  // Implement servings adjustment logic
+  alert('Servings adjustment feature coming soon!');
+}
+</script>
 
 {% endblock %}

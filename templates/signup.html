@@ -1,0 +1,143 @@
+{% extends "homebase.html" %}
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+
+
+<div class="form-container">
+    {% if errors %}
+    <div class="error-container">
+        {% for error in errors %}
+        <div class="error">
+            <svg class="error-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18ZM11 6C11 5.44772 10.5523 5 10 5C9.44772 5 9 5.44772 9 6V10C9 10.5523 9.44772 11 10 11C10.5523 11 11 10.5523 11 10V6ZM10 15C10.5523 15 11 14.5523 11 14C11 13.4477 10.5523 13 10 13C9.44772 13 9 13.4477 9 14C9 14.5523 9.44772 15 10 15Z"
+                    fill="currentColor" />
+            </svg>
+            <span class="text">{{ error }}</span>
+            <button type="button" class="close" onclick="this.parentElement.remove()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if success %}
+    <div class="success">
+        <svg class="error-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18ZM14.7071 8.70711C15.0976 8.31658 15.0976 7.68342 14.7071 7.29289C14.3166 6.90237 13.6834 6.90237 13.2929 7.29289L9 11.5858L6.70711 9.29289C6.31658 8.90237 5.68342 8.90237 5.29289 9.29289C4.90237 9.68342 4.90237 10.3166 5.29289 10.7071L8.29289 13.7071C8.68342 14.0976 9.31658 14.0976 9.70711 13.7071L14.7071 8.70711Z"
+                fill="currentColor" />
+        </svg>
+        <span class="text">{{ success }}</span>
+        <button type="button" class="close" onclick="this.parentElement.remove()">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+        </button>
+    </div>
+    {% endif %}
+
+    <h1>Get Started!</h1>
+    <span>Create an Account now and start your journey.</span>
+    <hr style="opacity: 0;" />
+
+    <form class="form" method="post">
+        {{ form.csrf_token }}
+        {{ form.username }}
+        {{ form.email }}
+        {{ form.password }}
+        <div id="password-requirements" class="password-requirements" style="display: none;">
+            <h4>Password Requirements:</h4>
+            <ul>
+                <li data-requirement="length">
+                    <span class="icon">✗</span>
+                    <span class="text">At least 12 characters long</span>
+                </li>
+                <li data-requirement="uppercase">
+                    <span class="icon">✗</span>
+                    <span class="text">At least one uppercase letter</span>
+                </li>
+                <li data-requirement="lowercase">
+                    <span class="icon">✗</span>
+                    <span class="text">At least one lowercase letter</span>
+                </li>
+                <li data-requirement="number">
+                    <span class="icon">✗</span>
+                    <span class="text">At least one number</span>
+                </li>
+                <li data-requirement="special">
+                    <span class="icon">✗</span>
+                    <span class="text">At least one special character (@$!%*#?&)</span>
+                </li>
+            </ul>
+        </div>
+        {{ form.conpassword }}
+        {{ form.submit }}
+    </form>
+
+    <p>You Already have an Account? <a href="{{ url_for('login') }}">Log In</a></p>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const passwordInput = document.querySelector('input[name="password"]');
+        const requirementsDiv = document.getElementById('password-requirements');
+        
+        function checkRequirements(password) {
+            return {
+                length: password.length >= 12,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /\d/.test(password),
+                special: /[@$!%*#?&]/.test(password)
+            };
+        }
+
+        function updateRequirements(password) {
+            const requirements = checkRequirements(password);
+
+            // Show requirements div when user starts typing
+            if (password.length > 0) {
+                requirementsDiv.classList.add('visible');
+            } else {
+                requirementsDiv.classList.remove('visible');
+            }
+
+            // Update each requirement's status
+            Object.keys(requirements).forEach(requirement => {
+                const li = requirementsDiv.querySelector(`li[data-requirement="${requirement}"]`);
+                const icon = li.querySelector('.icon');
+
+                if (requirements[requirement]) {
+                    li.classList.add('met');
+                    li.classList.remove('unmet');
+                    icon.textContent = '✓';
+                } else {
+                    li.classList.add('unmet');
+                    li.classList.remove('met');
+                    icon.textContent = '✗';
+                }
+            });
+        }
+
+        passwordInput.addEventListener('input', function (e) {
+            updateRequirements(e.target.value);
+        });
+
+        // Hide requirements initially
+        passwordInput.addEventListener('focus', function () {
+            if (this.value.length > 0) {
+                requirementsDiv.classList.add('visible');
+            }
+        });
+    });
+</script>
+
+{% endblock %}
