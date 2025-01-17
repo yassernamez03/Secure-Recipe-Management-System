@@ -3,12 +3,19 @@
 
 {% block content %}
 
-
+<style>
+    .form-container #error_text {
+        font-weight: bold;
+        text-align: left;
+        color: white;
+        margin-top: 0.2em;
+    }
+</style>
 <div class="form-container">
     {% if error %}
     <div class="error">
-        <span class="text">{{ error }}</span>
-        <span id="close" class="material-symbols-outlined" onclick="console.log(this.parentElement.remove())">
+        <span class="text" id="error_text">{{ error }}</span>
+        <span id="close" class="material-symbols-outlined" onclick="this.parentElement.remove()">
             close
         </span>
     </div>

@@ -134,7 +134,7 @@ def signup():
         return redirect(url_for('get_recipes'))
 
     form = SignupForm()
-    errors = []
+    error = None
 
     if form.validate_on_submit():
         username = form.username.data.strip()
@@ -142,55 +142,67 @@ def signup():
         password = form.password.data
         confirm = form.conpassword.data
 
-        # Check all password requirements
-        requirements = {
-            'length': len(password) >= 8,
-            'uppercase': bool(re.search(r'[A-Z]', password)),
-            'lowercase': bool(re.search(r'[a-z]', password)),
-            'number': bool(re.search(r'\d', password)),
-            'special': bool(re.search(r'[@$!%*#?&]', password))
-        }
-
-        if not all(requirements.values()):
-            if not requirements['length']:
-                errors.append("Password must be at least 12 characters long")
-            if not requirements['uppercase']:
-                errors.append("Password must contain at least one uppercase letter")
-            if not requirements['lowercase']:
-                errors.append("Password must contain at least one lowercase letter")
-            if not requirements['number']:
-                errors.append("Password must contain at least one number")
-            if not requirements['special']:
-                errors.append("Password must contain at least one special character (@$!%*#?&)")
-
+        # First check if passwords match
         if password != confirm:
-            errors.append("Passwords do not match")
+            error = "Passwords do not match"
+            return render_template("signup.html", form=form, error=error)
 
-        if not errors:
-            records = db.users
-            if records.find_one({'email': email}):
-                errors.append("Email already exists")
-            elif records.find_one({'username': username}):
-                errors.append("Username already exists")
-            else:
-                # Hash the password
-                hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        # Then check password requirements
+        password_errors = []
+        if len(password) < 8:
+            password_errors.append("Password must be at least 8 characters long")
+        if not re.search(r'[A-Z]', password):
+            password_errors.append("Password must contain at least one uppercase letter")
+        if not re.search(r'[a-z]', password):
+            password_errors.append("Password must contain at least one lowercase letter")
+        if not re.search(r'\d', password):
+            password_errors.append("Password must contain at least one number")
+        if not re.search(r'[@$!%*#?&]', password):
+            password_errors.append("Password must contain at least one special character (@$!%*#?&)")
 
-                # Create new user
-                new_user = {
-                    "username": username,
-                    "email": email,
-                    "password": hashed_password,
-                    "created_at": datetime.utcnow(),
-                    "last_login": datetime.utcnow()
-                }
+        if password_errors:
+            error = " • ".join(password_errors)
+            return render_template("signup.html", form=form, error=error)
 
-                # Insert user into the database
-                result = records.insert_one(new_user)
-                session["id"] = str(result.inserted_id)
-                return redirect(url_for('login'))
+        # Check if email or username already exists
+        records = db.users
+        if records.find_one({'email': email}):
+            error = "Email already exists"
+            return render_template("signup.html", form=form, error=error)
+        
+        if records.find_one({'username': username}):
+            error = "Username already exists"
+            return render_template("signup.html", form=form, error=error)
 
-    return render_template("signup.html", form=form, errors=errors)
+        try:
+            # Hash the password
+            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+            # Create new user
+            new_user = {
+                "username": username,
+                "email": email,
+                "password": hashed_password,
+                "created_at": datetime.utcnow(),
+                "last_login": datetime.utcnow()
+            }
+
+            # Insert user into the database
+            result = records.insert_one(new_user)
+            session["id"] = str(result.inserted_id)
+            return redirect(url_for('login'))
+
+        except Exception as e:
+            app.logger.error(f"Signup error: {str(e)}")
+            error = "An error occurred during signup. Please try again."
+            return render_template("signup.html", form=form, error=error)
+
+    # If form validation failed, check if there are form errors
+    if form.errors:
+        # Get the first error from the form
+        error = next(iter(form.errors.values()))[0]
+    
+    return render_template("signup.html", form=form, error=error)
 
 
 # -----Homepage------
