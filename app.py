@@ -144,16 +144,13 @@ def signup():
 
         # Check all password requirements
         requirements = {
-            'length': len(password) >= 12,
+            'length': len(password) >= 8,
             'uppercase': bool(re.search(r'[A-Z]', password)),
             'lowercase': bool(re.search(r'[a-z]', password)),
             'number': bool(re.search(r'\d', password)),
             'special': bool(re.search(r'[@$!%*#?&]', password))
         }
 
-        if password != confirm:
-            errors.append("Passwords do not match")
-            return render_template("signup.html", form=form, errors=errors)
         if not all(requirements.values()):
             if not requirements['length']:
                 errors.append("Password must be at least 12 characters long")
@@ -165,6 +162,9 @@ def signup():
                 errors.append("Password must contain at least one number")
             if not requirements['special']:
                 errors.append("Password must contain at least one special character (@$!%*#?&)")
+
+        if password != confirm:
+            errors.append("Passwords do not match")
 
         if not errors:
             records = db.users
@@ -189,7 +189,7 @@ def signup():
                 result = records.insert_one(new_user)
                 session["id"] = str(result.inserted_id)
                 return redirect(url_for('login'))
-        print(errors)
+
     return render_template("signup.html", form=form, errors=errors)
 
 

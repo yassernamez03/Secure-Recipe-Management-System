@@ -5,8 +5,8 @@ const PasswordRequirements = ({ password = '' }) => {
   const requirements = [
     {
       id: 'length',
-      text: "At least 12 characters long",
-      test: () => password.length >= 12
+      text: "At least 8 characters long",
+      test: () => password.length >= 8
     },
     {
       id: 'uppercase',
