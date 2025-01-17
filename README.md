@@ -95,7 +95,7 @@ This project is licensed under the MIT License. See the LICENSE file for details
 If you have any questions or suggestions, feel free to reach out:
 
 - GitHub: yassernamez03 (https://github.com/yassernamez03)
-- Email: your-email@example.com
+- Email: namezyasser5@gmail.com
 
 ---
 
