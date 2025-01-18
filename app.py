@@ -348,65 +348,113 @@ def recipe_single(recipe_id):
 
 # ************************************************
 
-@app.route('/recovery', methods=("POST", "GET"))
+@app.route('/recovery', methods=["POST", "GET"])
 def recovery():
-    global code
-    global emailSent
-    global resetPass
-    global emailPointed
-    global recFinished
+    global code, emailSent, resetPass, emailPointed, recFinished
 
     if 'id' in session:
-        return render_template(url_for('get_recipes'))
+        return redirect(url_for('get_recipes'))
 
     form = RecoveryForm()
 
-    if not(recFinished) and form.validate_on_submit():
+    # Reset the recovery process if starting fresh
+    if not recFinished and form.validate_on_submit():
         emailSent = False
         code = ""
         resetPass = False
         emailPointed = ""
 
-    if not(emailSent) and form.validate_on_submit():
+    # Step 1: Send recovery email
+    if not emailSent and form.validate_on_submit():
         records = db.users
         email = form.email.data
         emailPointed = email
-        if not(len(list(records.find({"email":email})))):
+        
+        # Check if user exists
+        if not list(records.find({"email": email})):
             return render_template('reset.html', form=form, error="User with such records not found.")
-        #Generating random 6-digit-code
+        
+        # Generate random 6-digit code
         code = random.randint(100000, 999999)
-        htmlcode = """<link rel="preconnect" href="https://fonts.googleapis.com">
-                    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400&display=swap" rel="stylesheet"> 
-                    <body>
-                    <style>
-                    * {
-                            font-family: 'Roboto';
-                        }
-                    </style>
-                    <p>Hi, this email contains a recovery code that you can use to change the password of your account. Here's the <strong>Recovery Code</strong>: </p>
-                    <center>
-                    <p style="font-size:34px;background: white; width: fit-content; padding: .75em 1em; border-radius: 6px; color: #ff123d; font-weight: bold; box-shadow: rgb(0, 0, 0, .25) 0 2px 5px;">"""+str(code)+"""</p>
-                    </center>
-                    </body>"""
-        sendMail(email, 'Account Recovery', htmlcode)
+        
+        # Create HTML email template
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {{
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                }}
+                .code-container {{
+                    text-align: center;
+                    margin: 30px 0;
+                }}
+                .code {{
+                    font-size: 34px;
+                    background: white;
+                    padding: 15px 30px;
+                    border-radius: 8px;
+                    color: #ff123d;
+                    font-weight: bold;
+                    display: inline-block;
+                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+                }}
+            </style>
+        </head>
+        <body>
+            <p>Hi,</p>
+            <p>A password reset was requested for your account. Here's your recovery code:</p>
+            <div class="code-container">
+                <div class="code">{code}</div>
+            </div>
+            <p>If you didn't request this code, please ignore this email or contact support if you're concerned.</p>
+            <p>Best regards,<br>Your App Team</p>
+        </body>
+        </html>
+        """
+        
+        # Send the email
+        email_response = sendMail(email, 'Password Recovery Code', html_content)
+        
+        if email_response is None:
+            # Email sending failed
+            return render_template('reset.html', form=form, error="Failed to send recovery email. Please try again.")
+        
         emailSent = True
-        return render_template('verify.html' , form=VerifyForm(), code=code)
+        return render_template('verify.html', form=VerifyForm(), code=code)
+
+    # Step 2: Verify the code
     elif emailSent and VerifyForm().validate_on_submit():
-        userCode = VerifyForm().code.data
-        if(int(userCode)==code):
+        user_code = VerifyForm().code.data
+        if int(user_code) == code:
             resetPass = True
             return render_template("resetpassword.html", form=ResetPasswordForm())
+        else:
+            return render_template('verify.html', form=VerifyForm(), error="Invalid code. Please try again.")
+
+    # Step 3: Reset the password
     elif resetPass and ResetPasswordForm().validate_on_submit():
         password = ResetPasswordForm().newpassword.data
         records = db.users
-        myquery = { "email": emailPointed }
-        newvalues = { "$set": { "password":generate_password_hash(password)  } }
-        records.update_one(myquery, newvalues)
-
-        recFinished = True
-
-        return redirect(url_for('login'))
+        print(password)
+        try:
+            records.update_one(
+                {"email": emailPointed}, 
+                {"$set": {"password": generate_password_hash(password)}}
+            )
+            recFinished = True
+            return redirect(url_for('login'))
+        except Exception as e:
+            return render_template("resetpassword.html", form=ResetPasswordForm(), 
+                                error="Failed to update password. Please try again.")
 
     return render_template('reset.html', form=form)
 
