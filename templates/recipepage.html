@@ -2,7 +2,6 @@
 {% block content %}
 
 <div class="recipe-page">
-  {% for recipe in recipes %}
     <!-- Hero Section -->
     <div class="recipe-hero">
       <div class="hero-image" style="background-image: url('{{recipe.photo_url}}')">
@@ -15,7 +14,7 @@
           <h1>{{recipe.recipe_name}}</h1>
         </div>
 
-        <div class="recipe-meta">
+        <div class="single_recipe-meta">
           <div class="meta-item">
             <i class="material-icons">schedule</i>
             <div class="meta-details">
@@ -110,23 +109,6 @@
         </div>
       </section>
     </main>
-  {% endfor %}
 </div>
-
-<style>
-    .recipe-meta {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: #8cfff3;
-        font-size: 0.9rem;
-    }
-</style>
-<script>
-function adjustServings() {
-  // Implement servings adjustment logic
-  alert('Servings adjustment feature coming soon!');
-}
-</script>
 
 {% endblock %}

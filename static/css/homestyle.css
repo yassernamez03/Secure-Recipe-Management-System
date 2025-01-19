@@ -11,7 +11,7 @@
     --primary-focus: #436767;
     --white: #0e0e0e;
 
-    --background-image: url('/static/easyfood.png');
+    --background-image: url('/static/res/easyfood.png');
 
     --image: url('/static/res/image-light.png');
 }
@@ -24,6 +24,22 @@
 
 body {
     background-color: var(--background);
+    overflow-x: hidden;
+
+    animation-name: showUp;
+    animation-duration: .4s;
+    animation-timing-function: ease-out;
+}
+
+.home {
+    background-color: var(--background);
+    background-image: url('/static/res/backgorund-image.jpg');
+    background-size: cover;
+    /* Ensures the image covers the entire background */
+    background-position: center;
+    /* Centers the image */
+    background-repeat: no-repeat;
+    /* Prevents the image from repeating */
     overflow-x: hidden;
 
     animation-name: showUp;
@@ -322,6 +338,18 @@ body {
     text-align: left;
     color: white;
 }
+.form-container #error_text_signup {
+    font-weight: bold;
+    text-align: left;
+    color: white;
+    margin-top: 0.3em;
+}
+.form-container  #error_text_login {
+    font-weight: bold;
+    text-align: left;
+    color: white;
+    margin-top: 0.3em;
+}
 .form-container #close {
     position: absolute;
     right: 1em;
@@ -332,7 +360,6 @@ body {
     user-select: none;
     color: white;
 }
-
 
 .chatbot-container {
     display: flex;

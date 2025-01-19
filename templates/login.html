@@ -2,18 +2,10 @@
 {% block title %}Login{% endblock %}
 {% block content %}
 
-<style>
-    .form-container .text {
-        font-weight: bold;
-        text-align: left;
-        color: white;
-        margin-top: 0.3em;
-    }
-</style>
 <div class="form-container" >
     {% if error %}
     <div class="error">
-        <span class="text">{{ error }}</span>
+        <span class="text" id="error_text_login">{{ error }}</span>
         <span id="close" class="material-symbols-outlined" onclick="console.log(this.parentElement.remove())">
             close
         </span>

@@ -1,57 +1,80 @@
-import React from 'react';
-import { Check, X } from 'lucide-react';
+document.addEventListener("DOMContentLoaded", function () {
+  const passwordInput = document.querySelector('input[name="password"]');
+  const requirementsDiv = document.getElementById("password-requirements");
 
-const PasswordRequirements = ({ password = '' }) => {
-  const requirements = [
-    {
-      id: 'length',
-      text: "At least 8 characters long",
-      test: () => password.length >= 8
-    },
-    {
-      id: 'uppercase',
-      text: "At least one uppercase letter",
-      test: () => /[A-Z]/.test(password)
-    },
-    {
-      id: 'lowercase',
-      text: "At least one lowercase letter",
-      test: () => /[a-z]/.test(password)
-    },
-    {
-      id: 'number',
-      text: "At least one number",
-      test: () => /\d/.test(password)
-    },
-    {
-      id: 'special',
-      text: "At least one special character (@$!%*#?&)",
-      test: () => /[@$!%*#?&]/.test(password)
+  function checkRequirements(password) {
+    return {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      special: /[@$!%*#?&]/.test(password),
+    };
+  }
+
+  function updateRequirements(password) {
+    const requirements = checkRequirements(password);
+
+    // Show requirements div when user starts typing
+    if (password.length > 0) {
+      requirementsDiv.classList.add("visible");
+    } else {
+      requirementsDiv.classList.remove("visible");
     }
-  ];
 
-  return (
-    <div className="mt-4 p-4 rounded-lg border border-gray-200">
-      <h3 className="text-sm font-medium mb-2" >Password Requirements:</h3>
-      <div className="space-y-2">
-        {requirements.map((req) => {
-          const isMet = req.test();
-          return (
-            <div key={req.id} className="flex items-center gap-2">
-              {isMet ? (
-                <Check className="w-4 h-4 text-green-500 shrink-0" />
-              ) : (
-                <X className="w-4 h-4 text-red-500 shrink-0" />
-              )}
-              <span className={`text-sm ${isMet ? 'text-green-600' : 'text-gray-600'}`}>
-                {req.text}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
+    // Update each requirement's status
+    Object.keys(requirements).forEach((requirement) => {
+      const li = requirementsDiv.querySelector(
+        `li[data-requirement="${requirement}"]`
+      );
+      const icon = li.querySelector(".icon");
 
-export default PasswordRequirements;
+      if (requirements[requirement]) {
+        li.classList.add("met");
+        li.classList.remove("unmet");
+        icon.textContent = "✓";
+      } else {
+        li.classList.add("unmet");
+        li.classList.remove("met");
+        icon.textContent = "✗";
+      }
+    });
+  }
+
+  passwordInput.addEventListener("input", function (e) {
+    updateRequirements(e.target.value);
+  });
+
+  // Hide requirements initially
+  passwordInput.addEventListener("focus", function () {
+    if (this.value.length > 0) {
+      requirementsDiv.classList.add("visible");
+    }
+  });
+});
+
+function adjustServings() {
+  // Implement servings adjustment logic
+  alert("Servings adjustment feature coming soon!");
+}
+
+function toggleAdvanced() {
+  const advancedSearch = document.getElementById("advancedSearch");
+  const currentDisplay = window.getComputedStyle(advancedSearch).display;
+  advancedSearch.style.display = currentDisplay === "none" ? "block" : "none";
+}
+
+// Category selector: Add_recipe page
+document.addEventListener("DOMContentLoaded", function () {
+  // Initialize Materialize select dropdowns
+  const selectElems = document.querySelectorAll("select");
+  if (selectElems.length > 0) {
+    M.FormSelect.init(selectElems, {}); // Initialize only if elements exist
+  }
+
+  // Initialize Materialize sidenav (if needed)
+  const sidenavElems = document.querySelectorAll(".sidenav");
+  if (sidenavElems.length > 0) {
+    M.Sidenav.init(sidenavElems, {}); // Initialize only if elements exist
+  }
+});

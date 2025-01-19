@@ -1,26 +1,14 @@
 {% extends "homebase.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-    <style>
-        body {
-            background-color: var(--background);
-            background-image: url('/static/backgorund-image.jpg');
-            background-size: cover; /* Ensures the image covers the entire background */
-            background-position: center; /* Centers the image */
-            background-repeat: no-repeat; /* Prevents the image from repeating */
-            overflow-x: hidden;
-        
-            animation-name: showUp;
-            animation-duration: .4s;
-            animation-timing-function: ease-out;
-        }
-        
-    </style>
+
+<body class="home">
+
     <section class="section-1-homepage">
         <div class="container">
             <h2>Welcome to Recipe Haven <span style="color:var(--primary);">Your Culinary Companion</span>,</h2>
-            <p>Discover, create, and share delicious recipes with our vibrant community of food enthusiasts.  
-                Whether you're a seasoned chef or just starting your culinary journey, Recipe Haven is here to 
+            <p>Discover, create, and share delicious recipes with our vibrant community of food enthusiasts.
+                Whether you're a seasoned chef or just starting your culinary journey, Recipe Haven is here to
                 inspire your cooking adventures.</p>
             <div class="btn-container">
                 <button class="primary" onclick="window.location='{{ url_for('signup') }}'">Get Started</button>
@@ -30,5 +18,7 @@
         <div class="robot-image"></div>
         <div class="robot-image-shadow"></div>
     </section>
+
+</body>
 
 {% endblock %}

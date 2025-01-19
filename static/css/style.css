@@ -12,10 +12,12 @@
     --primary-focus: #436767;
     --white: #0e0e0e;
 
-    --background-image: url('/static/easyfood.png');
+    --background-image: url('/static/res/easyfood.png');
 
     --image: url('/static/res/image-light.png');
 }
+
+
 
 
 
@@ -134,6 +136,7 @@
     position: relative;
 }
 
+recipe-meta
 
 /********** Search Form CSS **********/
 .search-container {
@@ -517,7 +520,15 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: #2f9188;
+    color: #718886;
+    font-size: 0.9rem;
+}
+
+.single_recipe-meta {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    color: #8cfff3;
     font-size: 0.9rem;
 }
 
@@ -677,36 +688,613 @@ select:focus {
 }
 
 .btn-cancel-recipe {
-    background-color: #aa4c04; /* Red color for cancel */
-    color: white; /* White text */
-    border: none; /* Remove default border */
-    padding: 10px 20px; /* Padding for better spacing */
-    font-size: 16px; /* Font size */
-    border-radius: 5px; /* Rounded corners */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
-    display: inline-flex; /* Align icon and text */
-    align-items: center; /* Center icon and text vertically */
-    gap: 8px; /* Space between icon and text */
+    background-color: #aa4c04;
+    /* Red color for cancel */
+    color: white;
+    /* White text */
+    border: none;
+    /* Remove default border */
+    padding: 10px 20px;
+    /* Padding for better spacing */
+    font-size: 16px;
+    /* Font size */
+    border-radius: 5px;
+    /* Rounded corners */
+    cursor: pointer;
+    /* Pointer cursor on hover */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    /* Smooth transitions */
+    display: inline-flex;
+    /* Align icon and text */
+    align-items: center;
+    /* Center icon and text vertically */
+    gap: 8px;
+    /* Space between icon and text */
     margin-top: 1em;
+}
+
+.btn-cancel-recipe:hover {
+    background-color: #d32f2f;
+    /* Darker red on hover */
+    transform: scale(1.05);
+    /* Slightly enlarge on hover */
+}
+
+.btn-cancel-recipe:active {
+    background-color: #b71c1c;
+    /* Even darker red on click */
+    transform: scale(0.95);
+    /* Slightly shrink on click */
+}
+
+.btn-cancel-recipe i {
+    font-size: 18px;
+    /* Slightly larger icon */
+}
+
+
+
+/********** CategoryPage css *******/
+
+:root {
+    --text: #2c3e50;
+    --border: rgba(0, 0, 0, 0.1);
+    --success: #10B981;
+    --danger: #EF4444;
+    --warning: #F59E0B;
+}
+
+.categories-container {
+    max-width: 1200px;
+    margin: 6em auto 2em;
+    padding: 0 2em;
+    animation: categories-fadeIn 0.3s ease-in;
+}
+
+@keyframes categories-fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.categories-row {
+    margin: 2em 0;
+}
+
+.categories-header-section {
+    background: white;
+    padding: 2em;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2em;
+}
+
+.categories-header-section h3 {
+    color: var(--text);
+    font-size: 2em;
+    margin: 0 0 0.5em 0;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.categories-header-section p {
+    color: #64748b;
+    line-height: 1.7;
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.categories-collection {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.categories-collection-item {
+    padding: 1.2em 1.5em;
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.categories-collection-item:last-child {
+    border-bottom: none;
+}
+
+.categories-collection-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(4px);
+}
+
+.categories-collection-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background-color: var(--primary);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.categories-collection-item:hover::before {
+    opacity: 1;
+}
+
+.categories-links-bottom-card {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.categories-links-bottom-card strong {
+    flex-grow: 1;
+    color: var(--text);
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+.categories-edit-link, .categories-delete-link {
+    text-decoration: none;
+    font-size: 0.95em;
+    padding: 0.5em 1em;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.categories-edit-link {
+    color: var(--primary);
+    background-color: rgba(74, 144, 226, 0.1);
+}
+
+.categories-edit-link:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+.categories-delete-link {
+    color: var(--danger);
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+.categories-delete-link:hover {
+    background-color: var(--danger);
+    color: white;
+}
+
+.categories-btn.waves-effect.waves-light {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75em;
+    background-color: var(--primary);
+    color: white;
+    padding: 1em 2em;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1em;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(74, 144, 226, 0.25);
+}
+
+.categories-btn.waves-effect.waves-light:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
+}
+
+.categories-btn.waves-effect.waves-light:active {
+    transform: translateY(0);
+}
+
+.categories-btn .material-icons {
+    font-size: 1.2em;
+}
+
+/* Empty state styling */
+.categories-empty-state {
+    text-align: center;
+    padding: 3em 2em;
+    color: #64748b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .categories-container {
+        padding: 0 1em;
+        margin-top: 4em;
+    }
+
+    .categories-header-section {
+        padding: 1.5em;
+    }
+
+    .categories-collection-item {
+        padding: 1em;
+    }
+
+    .categories-links-bottom-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5em;
+    }
+
+    .categories-links-bottom-card strong {
+        margin-bottom: 0.5em;
+    }
+
+    .categories-edit-link, .categories-delete-link {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/********** AddCategory css *******/
+:root {
+    --text: #2c3e50;
+    --border: rgba(0, 0, 0, 0.1);
+    --grey: #64748b;
+    --grey-hover: #4b5563;
+}
+
+.add-category-container {
+    max-width: 800px;
+    margin: 6em auto 2em;
+    padding: 0 2em;
+    animation: add-category-fadeIn 0.3s ease-in;
+}
+
+@keyframes add-category-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.add-category-form-card {
+    background: white;
+    padding: 2em;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.add-category-form-card h3 {
+    color: var(--text);
+    font-size: 2em;
+    margin: 0 0 1em 0;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.add-category-input-field {
+    position: relative;
+    margin: 2em 0;
+}
+
+.add-category-input-field .material-icons.prefix {
+    position: absolute;
+    top: 50%;
+    left: -0.2em;
+    transform: translateY(-50%);
+    color: var(--grey);
+    transition: color 0.3s ease;
+}
+
+.add-category-input-field input {
+    width: 100%;
+    padding: 1em 1em 1em 3.5em;
+    font-size: 1.1em;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    outline: none;
+    background: white;
+}
+
+.add-category-input-field input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.add-category-input-field input:focus+label,
+.add-category-input-field input:not(:placeholder-shown)+label {
+    top: 0;
+    transform: translateY(-2.5em) scale(0.85);
+    color: var(--primary);
+}
+
+.add-category-input-field input:focus~.material-icons.prefix {
+    color: var(--primary);
+}
+
+.add-category-input-field label {
+    position: absolute;
+    left: 3.2em;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1em;
+    color: var(--grey);
+    transition: all 0.2s ease-out;
+    background: white;
+    padding: 0 0.5em;
+    pointer-events: none;
+}
+
+.add-category-button-group {
+    display: flex;
+    gap: 1em;
+    margin-top: 2em;
+}
+
+.add-category-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75em;
+    padding: 1em 2em;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1em;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-category-btn .material-icons {
+    font-size: 1.2em;
+}
+
+.add-category-btn.waves-effect.waves-light {
+    background-color: var(--primary);
+    color: white;
+}
+
+.add-category-btn.waves-effect.waves-light:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
+}
+
+.add-category-btn.waves-effect.waves-light.grey {
+    background-color: var(--grey);
+    color: white;
+}
+
+.add-category-btn.waves-effect.waves-light.grey:hover {
+    background-color: var(--grey-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Error state */
+.add-category-input-field.error input {
+    border-color: #EF4444;
+}
+
+.add-category-input-field.error .helper-text {
+    color: #EF4444;
+    font-size: 0.9em;
+    margin-top: 0.5em;
+    margin-left: 3.5em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .add-category-container {
+        padding: 0 1em;
+        margin-top: 4em;
+    }
+
+    .add-category-form-card {
+        padding: 1.5em;
+    }
+
+    .add-category-button-group {
+        flex-direction: column;
+    }
+
+    .add-category-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/********** editCategory css *******/
+:root {
+    --text: #2c3e50;
+    --border: rgba(0, 0, 0, 0.1);
+    --grey: #64748b;
+    --grey-hover: #4b5563;
   }
   
-  .btn-cancel-recipe:hover {
-    background-color: #d32f2f; /* Darker red on hover */
-    transform: scale(1.05); /* Slightly enlarge on hover */
+  .edit-category-container {
+    max-width: 800px;
+    margin: 6em auto 2em;
+    padding: 0 2em;
+    animation: edit-category-fadeIn 0.3s ease-in;
   }
   
-  .btn-cancel-recipe:active {
-    background-color: #b71c1c; /* Even darker red on click */
-    transform: scale(0.95); /* Slightly shrink on click */
+  @keyframes edit-category-fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   
-  .btn-cancel-recipe i {
-    font-size: 18px; /* Slightly larger icon */
+  .edit-category-form-card {
+    background: white;
+    padding: 2em;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-top: 4px solid var(--primary);
+  }
+  
+  .edit-category-form-card h3 {
+    color: var(--text);
+    font-size: 2em;
+    margin: 0 0 0.5em 0;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+  }
+  
+  .edit-category-form-card h3 .material-icons {
+    color: var(--primary);
+    font-size: 1em;
+  }
+  
+  .edit-category-subtitle {
+    color: var(--grey);
+    margin-bottom: 2em;
+    font-size: 1.1em;
+    line-height: 1.5;
+  }
+  
+  .edit-category-input-field {
+    position: relative;
+    margin: 2em 0;
+  }
+  
+  .edit-category-input-field .material-icons.prefix {
+    position: absolute;
+    top: 50%;
+    left: -0.2em;
+    transform: translateY(-50%);
+    color: #64748b;
+    transition: color 0.3s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .edit-category-input-field input {
+    width: 100%;
+    padding: 1em 1em 1em 3.5em;
+    font-size: 1.1em;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    outline: none;
+    text-indent: 0.5em;
+    position: relative;
+    background: transparent;
+  }
+  
+  .edit-category-input-field input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+  }
+  
+  .edit-category-input-field input:focus + label,
+  .edit-category-input-field input:not(:placeholder-shown) + label {
+    transform: translateY(-2.5em) scale(0.85);
+    color: var(--primary);
+  }
+  
+  .edit-category-input-field input:focus ~ .material-icons.prefix {
+    color: var(--primary);
+  }
+  
+  .edit-category-input-field label {
+    position: absolute;
+    left: 3.2em;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1em;
+    color: var(--grey);
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+  
+  .edit-category-button-group {
+    display: flex;
+    gap: 1em;
+    margin-top: 2em;
+  }
+  
+  .edit-category-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75em;
+    padding: 1em 2em;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1em;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .edit-category-btn .material-icons {
+    font-size: 1.2em;
+  }
+  
+  .edit-category-btn.waves-effect.waves-light {
+    background-color: var(--primary);
+    color: white;
+  }
+  
+  .edit-category-btn.waves-effect.waves-light:hover {
+    background-color: #E3A008;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
+  }
+  
+  .edit-category-btn.waves-effect.waves-light.grey {
+    background-color: var(--grey);
+    color: white;
+  }
+  
+  .edit-category-btn.waves-effect.waves-light.grey:hover {
+    background-color: var(--grey-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .edit-category-container {
+      padding: 0 1em;
+      margin-top: 4em;
+    }
+  
+    .edit-category-form-card {
+      padding: 1.5em;
+    }
+  
+    .edit-category-button-group {
+      flex-direction: column;
+    }
+  
+    .edit-category-btn {
+      width: 100%;
+      justify-content: center;
+    }
   }
 
 /********** RecipePage css *******/
-
 .recipe-page {
     background-color: #fff;
     color: #2d3748;

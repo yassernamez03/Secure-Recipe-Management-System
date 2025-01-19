@@ -13,7 +13,7 @@
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css"
             type="text/css" />
       <!--Favicon -->
-      <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" sizes="16x16 32x32" type="image/png">
+      <link rel="icon" href="{{ url_for('static', filename='res/favicon.png') }}" sizes="16x16 32x32" type="image/png">
 
       <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -34,28 +34,6 @@
             </div>
       </header>
 
-      <!-- NavBar      
-      <div class="navbar-fixed">
-        <nav class="nav-extended name="viewport" content="width=device-width, initial-scale=1.0">
-              <div class="nav-wrapper">
-                  <a href="{{url_for('get_recipes')}}" class="brand-logo"><img src="{{ url_for('static', filename='easyfood.png') }}"></a>
-                  <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons menu-nav-icon">menu</i></a>
-                  <ul class="right hide-on-med-and-down">
-                      <li><a href="{{url_for('get_recipes')}}">Home</a></li>
-                      <li><a href="{{url_for('categories')}}">Manage Cusines</a></li>
-                      <li><a href="{{url_for('add_recipe')}}" class="button-nav btn">New recipe</a></li>
-                      <li><a href="{{url_for('destroy')}}" class="button-nav btn">Disconnect</a></li>
-                  </ul>
-              </div>
-        </nav>
-       </div> 
-              <ul class="sidenav" id="mobile-demo">
-                  <li><a href="{{url_for('get_recipes')}}">Home</a></li>
-                  <li><a href="{{url_for('add_recipe')}}">New recipe</a></li>
-                  <li><a href="{{url_for('categories')}}">Manage Categories</a></li>
-              </ul>
-           -->
-
       <!--Main banner-->
       <section class="banner"></section>
 
@@ -67,26 +45,7 @@
       <!--ChartsJs-->
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
-
-      <!--JavaScript components-->
-      <script>
-            // Category selector: Add_recipe page
-            document.addEventListener('DOMContentLoaded', function () {
-                  // Initialize Materialize select dropdowns
-                  const selectElems = document.querySelectorAll('select');
-                  if (selectElems.length > 0) {
-                        M.FormSelect.init(selectElems, {}); // Initialize only if elements exist
-                  }
-
-                  // Initialize Materialize sidenav (if needed)
-                  const sidenavElems = document.querySelectorAll('.sidenav');
-                  if (sidenavElems.length > 0) {
-                        M.Sidenav.init(sidenavElems, {}); // Initialize only if elements exist
-                  }
-            });
-      </script>
-
-
+      <script src="{{ url_for('static', filename='js/script.js') }}"></script>
       <!--JavaScript at end of body for optimized loading-->
       <script type="text/javascript"
             src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
