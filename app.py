@@ -2,10 +2,19 @@ import os
 import re
 from flask import Flask, session , render_template, redirect, request, url_for , jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
+import traceback
 
 from form import *
 import random
+from flask_wtf import CSRFProtect
+from flask_session import Session
+from flask_talisman import Talisman
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_bcrypt import Bcrypt
 from pymongo import MongoClient
+from bson.objectid import ObjectId
+from functools import wraps
 from bson.objectid import ObjectId
 from flask_bcrypt import Bcrypt
 from datetime import datetime, timedelta
@@ -16,14 +25,43 @@ app = Flask(__name__)
 secret_key = os.urandom(12).hex()
 app.config['SECRET_KEY'] = secret_key
 app.config.update(
-    SESSION_COOKIE_SECURE=True,
-    SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE='Lax',
-    PERMANENT_SESSION_LIFETIME=timedelta(hours=1)
+    SECRET_KEY = os.urandom(32),
+    SESSION_PERMANENT = False,
+    SESSION_TYPE = 'filesystem',
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=1),
+    # CSRF Configuration
+    WTF_CSRF_ENABLED = True,
+    WTF_CSRF_SECRET_KEY = os.urandom(32),
+    WTF_CSRF_TIME_LIMIT = 3600,  # 1 hour in seconds
+    # Session Cookie Settings
+    SESSION_COOKIE_SECURE = False,  
+    SESSION_COOKIE_HTTPONLY = True,
+    SESSION_COOKIE_SAMESITE = 'Lax',
+    # Allow all IP addresses to access the app
+    SERVER_NAME = None
+)
+
+# Initialize Session before other extensions
+Session(app)
+
+# Initialize CSRF protection with settings for cross-IP access
+csrf = CSRFProtect()
+csrf.init_app(app)
+
+Talisman(app, 
+    content_security_policy={
+        'default-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        'img-src': ["'self'", 'data:', '*'],
+        'style-src': ["'self'", "'unsafe-inline'", 'https:', '*'],
+        'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https:', '*'],
+        'font-src': ["'self'", 'https:', 'data:', '*'],
+        'connect-src': ["'self'", '*']
+    },
+    force_https=False,
+    session_cookie_secure=False
 )
 
 bcrypt = Bcrypt(app)
-
 
 # MongoDB connection
 client = MongoClient('mongodb+srv://namezyasser3:admin@cluster0.ga0p0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
@@ -43,15 +81,21 @@ limiter = Limiter(
     default_limits=["200 per day", "50 per hour"]
 )
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not is_session_valid():
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 def init_session(user_id):
-    """Initialize secure session with proper timeout"""
     session.permanent = True
     app.permanent_session_lifetime = timedelta(hours=1)
     session["id"] = str(user_id)
     session["login_time"] = datetime.utcnow().timestamp()
 
 def is_session_valid():
-    """Check if current session is valid"""
     if "login_time" not in session:
         return False
     login_time = datetime.fromtimestamp(session["login_time"])
@@ -59,12 +103,9 @@ def is_session_valid():
 
 @app.before_request
 def before_request():
-    """Verify session validity before each request"""
     if "id" in session and not is_session_valid():
         session.clear()
         return redirect(url_for('login'))
-    
-    
 
 def check_password_requirements(password):
     requirements = {
@@ -81,7 +122,6 @@ def check_password_requirements(password):
 def home():
     if "id" in session:
         return redirect(url_for('get_recipes'))
-        
     return render_template("index.html")
 
 
@@ -112,7 +152,6 @@ def login():
                 init_session(user["_id"])
                 return redirect(url_for('get_recipes'))
             else:
-                
                 db.login_attempts.insert_one({
                     "email": email,
                     "timestamp": datetime.utcnow(),
@@ -125,6 +164,7 @@ def login():
             app.logger.error(f"Login error: {str(e)}")
             error = "An error occurred. Please try again later."
 
+    app.logger.debug(f"Login form errors: {form.errors}")
     return render_template("login.html", form=form, error=error)
 
 #-----signupPage------
@@ -207,10 +247,9 @@ def signup():
 
 # -----Homepage------
 @app.route('/get_recipes')
+@login_required
 def get_recipes():
-    if "id" not in session:
-        return redirect(url_for('login'))
-    
+
     user_id = session["id"]
     
     if (request.args.get('recipe_name') is not None 
@@ -251,16 +290,15 @@ def get_recipes():
 
 # -----Add Recipe------
 @app.route('/add_recipe')
+@login_required
 def add_recipe():
-    if "id" not in session:
-        return redirect(url_for('login'))
+
     return render_template('addrecipe.html', categories=db.categories.find())
 
 @app.route('/insert_recipe', methods=['POST'])
+@login_required
 def insert_recipe():
-    if "id" not in session:
-        return redirect(url_for('login'))
-    
+
     try:
         recipes = db.recipes
         recipe_data = request.form.to_dict()
@@ -274,9 +312,9 @@ def insert_recipe():
 
 # -----Edit Recipe------
 @app.route('/edit_recipe/<recipe_id>')
+@login_required
 def edit_recipe(recipe_id):
-    if "id" not in session:
-        return redirect(url_for('login'))
+
     
     user_id = session["id"]
     the_recipe = db.recipes.find_one({"_id": ObjectId(recipe_id), "user_id": user_id})
@@ -288,10 +326,9 @@ def edit_recipe(recipe_id):
     return render_template('editrecipe.html', recipe=the_recipe, categories=all_categories)
 
 @app.route('/update_recipe/<recipe_id>', methods=["POST"])
+@login_required
 def update_recipe(recipe_id):
-    if "id" not in session:
-        return redirect(url_for('login'))
-    
+
     user_id = session["id"]
     recipes = db.recipes
     recipes.update_one(
@@ -312,9 +349,9 @@ def update_recipe(recipe_id):
 
 # -----Delete Recipe------
 @app.route('/delete_recipe/<recipe_id>')
+@login_required
 def delete_recipe(recipe_id):
-    if "id" not in session:
-        return redirect(url_for('login'))
+
     
     user_id = session["id"]
     db.recipes.delete_one({'_id': ObjectId(recipe_id), "user_id": user_id})
@@ -322,22 +359,22 @@ def delete_recipe(recipe_id):
 
 # -----Categories funcitionalities------
 @app.route('/categories')
+@login_required
 def categories():
-    if "id" not in session:
-        return redirect(url_for('login'))
+
     return render_template('categories.html', categories=db.categories.find())
 
 @app.route('/edit_category/<category_id>')
+@login_required
 def edit_category(category_id):
-    if "id" not in session:
-        return redirect(url_for('login'))
+
     return render_template('editcategory.html',
                            category=db.categories.find_one({'_id': ObjectId(category_id)}))
 
 @app.route('/update_category/<category_id>', methods=['POST'])
+@login_required
 def update_category(category_id):
-    if "id" not in session:
-        return redirect(url_for('login'))
+
     db.categories.update_one(
         {'_id': ObjectId(category_id)},
         {'$set': {'category_name': request.form.get('category_name')}}
@@ -345,31 +382,31 @@ def update_category(category_id):
     return redirect(url_for('categories'))
 
 @app.route('/delete_category/<category_id>')
+@login_required
 def delete_category(category_id):
-    if "id" not in session:
-        return redirect(url_for('login'))
+
     db.categories.delete_one({'_id': ObjectId(category_id)})
     return redirect(url_for('categories'))
 
 @app.route('/insert_category', methods=['POST'])
+@login_required
 def insert_category():
-    if "id" not in session:
-        return redirect(url_for('login'))
+
     category_doc = {'category_name': request.form.get('category_name')}
     db.categories.insert_one(category_doc)
     return redirect(url_for('categories'))
 
 @app.route('/add_category')
+@login_required
 def add_category():
-    if "id" not in session:
-        return redirect(url_for('login'))
+
     return render_template('addcategory.html')
 
 # -----Single Page Recipe------
 @app.route('/recipe_single/<recipe_id>')
+@login_required
 def recipe_single(recipe_id):
-    if "id" not in session:
-        return redirect(url_for('login'))
+
     
     user_id = session["id"]
     recipe = db.recipes.find_one({'_id': ObjectId(recipe_id), "user_id": user_id})
@@ -499,7 +536,43 @@ def destroy():
 
     return redirect(url_for('login'))
 
+
+
+@app.errorhandler(404)
+def not_found_error(error):
+    if request.headers.get('Content-Type') == 'application/json':
+        return jsonify({'error': 'Not found'}), 404
+    return render_template('errors/404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    app.logger.error(f'Server Error: {error}')
+    app.logger.error(traceback.format_exc())
+    
+    if 'db' in globals():
+        try:
+            db.session.rollback()
+        except:
+            pass
+            
+    if request.headers.get('Content-Type') == 'application/json':
+        return jsonify({'error': 'Internal server error'}), 500
+    return render_template('errors/500.html'), 500
+
+@app.errorhandler(403)
+def forbidden_error(error):
+    if request.headers.get('Content-Type') == 'application/json':
+        return jsonify({'error': 'Forbidden'}), 403
+    return render_template('errors/403.html'), 403
+
+@app.errorhandler(400)
+def bad_request_error(error):
+    if request.headers.get('Content-Type') == 'application/json':
+        return jsonify({'error': 'Bad request'}), 400
+    return render_template('errors/400.html'), 400
+
+
 if __name__ == '__main__':
     app.run(host=os.environ.get('IP'),
             port=int(os.environ.get('PORT', 5000)),
-            debug=True)
+            debug=False)

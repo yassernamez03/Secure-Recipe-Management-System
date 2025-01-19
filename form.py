@@ -8,7 +8,12 @@ import os
 load_dotenv()  
 
 api_key = os.getenv('SENDINBLUE_API_KEY')  
-class SignupForm(FlaskForm):
+
+class BaseForm(FlaskForm):
+    class Meta:
+        csrf = True
+        
+class SignupForm(BaseForm):
     username = StringField(validators=[
         InputRequired(),
         Length(min=2, max=100),
@@ -35,7 +40,7 @@ class SignupForm(FlaskForm):
     submit = SubmitField("Create Account", render_kw={"class": "button"})
 
 
-class LoginForm(FlaskForm):
+class LoginForm(BaseForm):
     email = EmailField(validators=[
         InputRequired(),
         Email(message="Invalid email address"),
@@ -48,19 +53,19 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Log In", render_kw={"class": "button"})
 
 
-class RecoveryForm(FlaskForm):
+class RecoveryForm(BaseForm):
     email = EmailField(validators=[InputRequired(), Length(
         min=7, max=1000)], render_kw={"placeholder": "Email Address"})
     submit = SubmitField("Send Code", render_kw={"class": "button"})
 
 
-class VerifyForm(FlaskForm):
+class VerifyForm(BaseForm):
     code = IntegerField(validators=[InputRequired()], render_kw={
                         "placeholder": "Verification Code"})
     submit = SubmitField("Verify", render_kw={"class": "button"})
 
 
-class ResetPasswordForm(FlaskForm):
+class ResetPasswordForm(BaseForm):
     newpassword = StringField(validators=[InputRequired()], render_kw={
                               "placeholder": "New Password"})
     submit = SubmitField("Save Changes", render_kw={"class": "button"})
