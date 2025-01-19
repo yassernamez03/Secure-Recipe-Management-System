@@ -206,15 +206,17 @@ def signup():
 
 
 # -----Homepage------
-
 @app.route('/get_recipes')
 def get_recipes():
     if "id" not in session:
         return redirect(url_for('login'))
     
+    user_id = session["id"]
+    
     if (request.args.get('recipe_name') is not None 
-    or request.args.get('preparation_time') is not None 
-    or request.args.get('category_name') is not None):
+        or request.args.get('preparation_time') is not None 
+        or request.args.get('category_name') is not None):
+        
         recipename = None
         preparationtime = None
         categoryname = None
@@ -231,11 +233,20 @@ def get_recipes():
             categoryregex = "\W*"+request.args.get("category_name")+"\W*"
             categoryname = re.compile(categoryregex, re.IGNORECASE)
 
-        # Accessing the 'recipes' collection and querying the database
-        recipes = db.recipes.find({ "$or": [{"recipe_name": recipename}, {"preparation_time": preparationtime}, {"category_name": categoryname}] })
+        # Filter recipes by user_id and search criteria
+        recipes = db.recipes.find({
+            "user_id": user_id,
+            "$or": [
+                {"recipe_name": recipename},
+                {"preparation_time": preparationtime},
+                {"category_name": categoryname}
+            ]
+        })
         return render_template("recipes.html", recipes=recipes, categories=db.categories.find())
         
-    return render_template("recipes.html", recipes=db.recipes.find(), categories=db.categories.find())
+    # Filter recipes by user_id only
+    recipes = db.recipes.find({"user_id": user_id})
+    return render_template("recipes.html", recipes=recipes, categories=db.categories.find())
 
 
 # -----Add Recipe------
@@ -247,11 +258,15 @@ def add_recipe():
 
 @app.route('/insert_recipe', methods=['POST'])
 def insert_recipe():
+    if "id" not in session:
+        return redirect(url_for('login'))
+    
     try:
         recipes = db.recipes
-        recipes.insert_one(request.form.to_dict())
+        recipe_data = request.form.to_dict()
+        recipe_data['user_id'] = session["id"]  # Add the user_id to the recipe
+        recipes.insert_one(recipe_data)
         print("Recipe added successfully!")
-        print(request.form.to_dict())
         return redirect(url_for('get_recipes'))
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -262,7 +277,13 @@ def insert_recipe():
 def edit_recipe(recipe_id):
     if "id" not in session:
         return redirect(url_for('login'))
-    the_recipe = db.recipes.find_one({"_id": ObjectId(recipe_id)})
+    
+    user_id = session["id"]
+    the_recipe = db.recipes.find_one({"_id": ObjectId(recipe_id), "user_id": user_id})
+    
+    if not the_recipe:
+        return redirect(url_for('get_recipes'))  # Redirect if the recipe doesn't belong to the user
+    
     all_categories = db.categories.find()
     return render_template('editrecipe.html', recipe=the_recipe, categories=all_categories)
 
@@ -270,19 +291,23 @@ def edit_recipe(recipe_id):
 def update_recipe(recipe_id):
     if "id" not in session:
         return redirect(url_for('login'))
+    
+    user_id = session["id"]
     recipes = db.recipes
-    recipes.update_one({'_id': ObjectId(recipe_id)},
-    {
-        '$set': {
-            'recipe_name': request.form.get('recipe_name'),
-            'category_name': request.form.get('category_name'),
-            'recipe_intro': request.form.get('recipe_intro'),
-            'ingredients': request.form.get('ingredients'),
-            'description': request.form.get('description'),
-            'preparation_time': request.form.get('preparation_time'),
-            'photo_url': request.form.get('photo_url')
+    recipes.update_one(
+        {'_id': ObjectId(recipe_id), "user_id": user_id},
+        {
+            '$set': {
+                'recipe_name': request.form.get('recipe_name'),
+                'category_name': request.form.get('category_name'),
+                'recipe_intro': request.form.get('recipe_intro'),
+                'ingredients': request.form.get('ingredients'),
+                'description': request.form.get('description'),
+                'preparation_time': request.form.get('preparation_time'),
+                'photo_url': request.form.get('photo_url')
+            }
         }
-    })
+    )
     return redirect(url_for('get_recipes'))
 
 # -----Delete Recipe------
@@ -290,7 +315,9 @@ def update_recipe(recipe_id):
 def delete_recipe(recipe_id):
     if "id" not in session:
         return redirect(url_for('login'))
-    db.recipes.delete_one({'_id': ObjectId(recipe_id)})
+    
+    user_id = session["id"]
+    db.recipes.delete_one({'_id': ObjectId(recipe_id), "user_id": user_id})
     return redirect(url_for('get_recipes'))
 
 # -----Categories funcitionalities------
@@ -343,9 +370,14 @@ def add_category():
 def recipe_single(recipe_id):
     if "id" not in session:
         return redirect(url_for('login'))
-    return render_template("recipepage.html",
-                           recipes=db.recipes.find({'_id': ObjectId(recipe_id)}))
-
+    
+    user_id = session["id"]
+    recipe = db.recipes.find_one({'_id': ObjectId(recipe_id), "user_id": user_id})
+    
+    if not recipe:
+        return redirect(url_for('get_recipes'))  
+    
+    return render_template("recipepage.html", recipe=recipe)
 # ************************************************
 
 @app.route('/recovery', methods=["POST", "GET"])
@@ -443,12 +475,13 @@ def recovery():
     # Step 3: Reset the password
     elif resetPass and ResetPasswordForm().validate_on_submit():
         password = ResetPasswordForm().newpassword.data
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         records = db.users
         print(password)
         try:
             records.update_one(
                 {"email": emailPointed}, 
-                {"$set": {"password": generate_password_hash(password)}}
+                {"$set": {"password": hashed_password}}
             )
             recFinished = True
             return redirect(url_for('login'))
