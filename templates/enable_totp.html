@@ -1,0 +1,31 @@
+{% extends "homebase.html" %}
+{% block title %}Enable 2FA{% endblock %}
+{% block content %}
+    <div class="form-container">
+        {% if error %}
+        <div class="error">
+            <span class="text">{{ error }}</span>
+            <span id="close" class="material-symbols-outlined" onclick="console.log(this.parentElement.remove())">
+                close
+            </span>
+        </div>
+        {% endif %}
+        <h1>Enable Two-Factor Authentication</h1>
+        <hr style="opacity: 0;"/>
+        <div class="totp-setup">
+            <p>1. Scan this QR code with your authenticator app:</p>
+            <div class="qr-container">
+                <img src="{{ qrcode(totp_uri) }}" alt="QR Code">
+            </div>
+            <p>Or manually enter this secret key:</p>
+            <div class="secret-key">{{ totp_secret }}</div>
+            
+            <p>2. Enter the verification code from your app:</p>
+            <form class="form" method="post">
+                {{ form.csrf_token }}
+                {{ form.totp(placeholder="Enter 6-digit code") }}
+                <button type="submit" class="button">Enable 2FA</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

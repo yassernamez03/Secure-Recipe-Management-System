@@ -1,6 +1,6 @@
 import os
 import re
-from flask import Flask, session , render_template, redirect, request, url_for , jsonify
+from flask import Flask, session , render_template, redirect, request, url_for , jsonify,flash
 from werkzeug.security import check_password_hash, generate_password_hash
 import traceback
 
@@ -9,6 +9,8 @@ import random
 from flask_wtf import CSRFProtect
 from flask_session import Session
 from flask_talisman import Talisman
+from flask_qrcode import QRcode
+import pyotp
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_bcrypt import Bcrypt
@@ -62,6 +64,7 @@ Talisman(app,
 )
 
 bcrypt = Bcrypt(app)
+QRcode(app)
 
 # MongoDB connection
 client = MongoClient('mongodb+srv://namezyasser3:admin@cluster0.ga0p0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
@@ -117,6 +120,107 @@ def check_password_requirements(password):
     }
     return requirements
 
+@app.route("/enable_totp", methods=["GET", "POST"])
+@login_required
+def enable_totp():
+    form = TotpForm()  # Use the TotpForm for TOTP verification
+
+    if request.method == "GET":
+        # Generate new TOTP secret
+        totp_secret = pyotp.random_base32()
+        session['temp_totp_secret'] = totp_secret
+        
+        # Generate QR code URI
+        totp_uri = pyotp.totp.TOTP(totp_secret).provisioning_uri(
+            name=session.get("email"),
+            issuer_name="Recipe Manager"
+        )
+        
+        return render_template(
+            "enable_totp.html",
+            totp_uri=totp_uri,
+            totp_secret=totp_secret,
+            form=form  # Pass the form to the template
+        )
+    
+    elif request.method == "POST":
+        if form.validate_on_submit():
+            # Verify the TOTP code
+            totp_code = form.totp.data
+            temp_secret = session.get('temp_totp_secret')
+            
+            if not temp_secret:
+                flash("TOTP setup expired. Please try again.")
+                return redirect(url_for('enable_totp'))
+            
+            totp = pyotp.TOTP(temp_secret)
+            if totp.verify(totp_code):
+                # Save TOTP secret to user's profile
+                user_id = session.get("id")
+                db.users.update_one(
+                    {"_id": ObjectId(user_id)},
+                    {"$set": {"totp_secret": temp_secret, "totp_enabled": True}}
+                )
+                
+                # Clean up session
+                session.pop('temp_totp_secret', None)
+                flash("Two-factor authentication enabled successfully!")
+                return redirect(url_for('get_recipes'))
+            
+            flash("Invalid TOTP code. Please try again.")
+        else:
+            flash("Form validation failed. Please check your input.")
+        
+        return redirect(url_for('enable_totp'))
+
+@app.route("/verify_totp", methods=["GET", "POST"])
+def verify_totp():
+    form = TotpForm()  # Use the TotpForm for TOTP verification
+    
+    if "totp_user_id" not in session:
+        return redirect(url_for('login'))
+    
+    if form.validate_on_submit():
+        user_id = session["totp_user_id"]
+        user = db.users.find_one({"_id": ObjectId(user_id)})
+        
+        if not user or not user.get("totp_secret"):
+            session.clear()
+            return redirect(url_for('login'))
+        
+        totp = pyotp.TOTP(user["totp_secret"])
+        if totp.verify(form.totp.data):
+            # Clean up TOTP session data
+            session.pop("totp_user_id", None)
+            
+            # Initialize regular session
+            init_session(user["_id"])
+            return redirect(url_for('get_recipes'))
+        
+        flash("Invalid TOTP code. Please try again.")
+    
+    return render_template("verify_totp.html", form=form)
+
+@app.route("/disable_totp", methods=["POST"])
+@login_required
+def disable_totp():
+    user_id = session.get("id")
+    
+    if not user_id:
+        return redirect(url_for('login'))
+    
+    db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {
+            "$unset": {"totp_secret": ""},
+            "$set": {"totp_enabled": False}
+        }
+    )
+    
+    flash("Two-factor authentication has been disabled.")
+    return redirect(url_for('get_recipes'))
+
+
 # -----loginPage------
 @app.route("/")
 def home():
@@ -126,7 +230,7 @@ def home():
 
 
 @app.route("/login", methods=("POST", "GET"))
-@limiter.limit("5 per minute")  # Rate limiting for brute force protection
+@limiter.limit("5 per minute")
 def login():
     if "id" in session and is_session_valid():
         return redirect(url_for('get_recipes'))
@@ -135,7 +239,7 @@ def login():
     error = ""
 
     if form.validate_on_submit():
-        email = form.email.data.lower().strip()  # Normalize email
+        email = form.email.data.lower().strip()
         password = form.password.data
 
         try:
@@ -143,28 +247,21 @@ def login():
             user = records.find_one({"email": email})
 
             if user and bcrypt.check_password_hash(user["password"], password):
-                db.login_attempts.insert_one({
-                    "user_id": user["_id"],
-                    "timestamp": datetime.utcnow(),
-                    "success": True,
-                    "ip": request.remote_addr
-                })
+                # Check if TOTP is enabled
+                if user.get("totp_enabled", False):
+                    session["totp_user_id"] = str(user["_id"])
+                    return redirect(url_for('verify_totp'))
+                
+                # If no TOTP, proceed with normal login
                 init_session(user["_id"])
                 return redirect(url_for('get_recipes'))
             else:
-                db.login_attempts.insert_one({
-                    "email": email,
-                    "timestamp": datetime.utcnow(),
-                    "success": False,
-                    "ip": request.remote_addr
-                })
-                error = "Invalid email or password"  # Generic error message
+                error = "Invalid email or password"
 
         except Exception as e:
             app.logger.error(f"Login error: {str(e)}")
             error = "An error occurred. Please try again later."
 
-    app.logger.debug(f"Login form errors: {form.errors}")
     return render_template("login.html", form=form, error=error)
 
 #-----signupPage------

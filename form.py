@@ -70,7 +70,15 @@ class ResetPasswordForm(BaseForm):
                               "placeholder": "New Password"})
     submit = SubmitField("Save Changes", render_kw={"class": "button"})
 
-
+class TotpForm(BaseForm):
+    totp = StringField(validators=[
+        InputRequired(),
+        Length(min=6, max=6, message="TOTP code must be 6 digits"),
+        Regexp(r'^[0-9]+$', message="TOTP code must contain only numbers")
+    ], render_kw={"placeholder": "Enter 6-digit code"})
+    
+    submit = SubmitField("Verify", render_kw={"class": "button"})
+    
 def sendMail(target, subject, message):
     url = "https://api.sendinblue.com/v3/smtp/email"
 
