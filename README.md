@@ -10,6 +10,8 @@ Welcome to the **Recipe Management System**, a Flask-based web application desig
 - **Responsive Design**: Access the app on any device, including desktops, tablets, and mobile phones.
 - **Rate and Review**: Logged-in users can rate and review recipes.
 - **Secure Password Handling**: Passwords are securely hashed using Flask-Bcrypt.
+- **Two-Factor Authentication (2FA)**: Enhanced security with TOTP-based two-factor authentication.
+- **Password Recovery**: Securely recover your account with email-based password reset.
 
 ## Technologies Used
 
@@ -19,17 +21,9 @@ Welcome to the **Recipe Management System**, a Flask-based web application desig
 - **Authentication**: Flask-Login, Flask-Bcrypt
 - **Form Handling**: Flask-WTF, WTForms
 - **Rate Limiting**: Flask-Limiter
-- **Other Libraries**: PyOTP (for two-factor authentication), Rich (for console output), and more.
+- **Two-Factor Authentication**: PyOTP
+- **Other Libraries**: Rich (for console output), Flask-Talisman (for security headers), Flask-QRcode (for QR code generation)
 
-## Getting Started
-
-### Prerequisites
-
-Before running the application, ensure you have the following installed:
-
-- Python 3.7 or higher
-- pip (Python package installer)
-- MongoDB (running locally or remotely)
 
 ### Installation
 
@@ -37,7 +31,7 @@ Before running the application, ensure you have the following installed:
 
    ```bash
    git clone https://github.com/yassernamez03/Recipe-Management-System.git
-   cd Recipe-Management-System bash
+   cd Recipe-Management-System 
 
 2. **Create a Virtual Environment**
     ```bash
@@ -55,35 +49,37 @@ Before running the application, ensure you have the following installed:
 
 ## Usage
 
-- Home Page: Visit the home page to browse featured recipes.
-- Search: Use the search bar to find recipes by name, ingredients, or category.
-- Recipe Details: Click on a recipe to view its details, including ingredients, instructions, and user reviews.
-- User Dashboard: Log in to access your saved recipes, add new recipes, and manage your account.
-- Rate and Review: Logged-in users can rate and review recipes.
+- **Home Page**: Visit the home page to browse featured recipes.
+- **Search**: Use the search bar to find recipes by name, ingredients, or category.
+- **Recipe Details**: Click on a recipe to view its details, including ingredients, instructions, and user reviews.
+- **User Dashboard**: Log in to access your saved recipes, add new recipes, and manage your account.
+- **Rate and Review**: Logged-in users can rate and review recipes.
+- **Two-Factor Authentication**: Enable or disable 2FA for added security.
+- **Password Recovery**: Reset your password securely via email.
 
 ## API Endpoints (Optional)
 
 If your app includes an API, you can document the endpoints here. For example:
 
-- GET /api/recipes: Get a list of all recipes.
-- GET /api/recipes/<id>: Get details of a specific recipe.
-- POST /api/recipes: Add a new recipe (requires authentication).
+- `GET /api/recipes`: Get a list of all recipes.
+- `GET /api/recipes/<id>`: Get details of a specific recipe.
+- `POST /api/recipes`: Add a new recipe (requires authentication).
 
 ## Contributing
 
 We welcome contributions! If you'd like to contribute, please follow these steps:
 
 1. Fork the repository.
-2. Create a new branch (git checkout -b feature/YourFeatureName).
-3. Commit your changes (git commit -m 'Add some feature').
-4. Push to the branch (git push origin feature/YourFeatureName).
+2. Create a new branch (`git checkout -b feature/YourFeatureName`).
+3. Commit your changes (`git commit -m 'Add some feature'`).
+4. Push to the branch (`git push origin feature/YourFeatureName`).
 5. Open a pull request.
 
 Please ensure your code follows the project's coding standards and includes appropriate tests.
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
@@ -94,8 +90,8 @@ This project is licensed under the MIT License. See the LICENSE file for details
 
 If you have any questions or suggestions, feel free to reach out:
 
-- GitHub: yassernamez03 (https://github.com/yassernamez03)
-- Email: namezyasser5@gmail.com
+- **GitHub**: [yassernamez03](https://github.com/yassernamez03)
+- **Email**: [namezyasser5@gmail.com](mailto:namezyasser5@gmail.com)
 
 ---
 
