@@ -173,31 +173,106 @@ def enable_totp():
         
         return redirect(url_for('enable_totp'))
 
-@app.route("/verify_totp", methods=["GET", "POST"])
-def verify_totp():
-    form = TotpForm()  # Use the TotpForm for TOTP verification
-    
-    if "totp_user_id" not in session:
+@app.route("/setup_totp", methods=["GET", "POST"])
+def setup_totp():
+    if 'setup_totp_user_id' not in session or 'temp_totp_secret' not in session:
         return redirect(url_for('login'))
     
+    form = TotpForm() 
+    
+    if request.method == "GET":
+        user_id = session['setup_totp_user_id']
+        user = db.users.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            session.clear()
+            return redirect(url_for('login'))
+        
+        totp_secret = session['temp_totp_secret']
+        totp_uri = pyotp.totp.TOTP(totp_secret).provisioning_uri(
+            name=user["email"],
+            issuer_name="Recipe Manager"
+        )
+        
+        return render_template(
+            "enable_totp.html",
+            totp_uri=totp_uri,
+            totp_secret=totp_secret,
+            form=form 
+        )
+    
+    elif request.method == "POST":
+        totp_code = request.form.get("totp")
+        temp_secret = session['temp_totp_secret']
+        user_id = session['setup_totp_user_id']
+        
+        totp = pyotp.TOTP(temp_secret)
+        if totp.verify(totp_code):
+            # Generate backup codes
+            backup_codes = [pyotp.random_base32()[:8] for _ in range(5)]
+            
+            # Update user with TOTP information
+            db.users.update_one(
+                {"_id": ObjectId(user_id)},
+                {
+                    "$set": {
+                        "totp_enabled": "True",
+                        "totp_secret": temp_secret,
+                        "totp_backup_codes": backup_codes,
+                        "totp_setup_date": datetime.utcnow(),
+                        "totp_last_used": None
+                    }
+                }
+            )
+            
+            # Clean up session
+            session.pop('temp_totp_secret', None)
+            session.pop('setup_totp_user_id', None)
+            
+            # Initialize regular session
+            init_session(ObjectId(user_id))
+            
+            flash("Two-factor authentication enabled successfully! Please save your backup codes.")
+            return redirect(url_for('get_recipes'))
+        
+        flash("Invalid verification code. Please try again.")
+        return redirect(url_for('setup_totp'))
+
+@app.route("/verify_totp", methods=["GET", "POST"])
+def verify_totp():
+    if 'totp_user_id' not in session:
+        return redirect(url_for('login'))
+    
+    form = TotpForm()
+    
     if form.validate_on_submit():
-        user_id = session["totp_user_id"]
+        user_id = session['totp_user_id']
         user = db.users.find_one({"_id": ObjectId(user_id)})
         
-        if not user or not user.get("totp_secret"):
+        if not user or user.get("totp_enabled") != "True":
             session.clear()
             return redirect(url_for('login'))
         
         totp = pyotp.TOTP(user["totp_secret"])
         if totp.verify(form.totp.data):
+            # Update last used timestamp
+            db.users.update_one(
+                {"_id": ObjectId(user_id)},
+                {
+                    "$set": {
+                        "totp_last_used": datetime.utcnow(),
+                        "last_login": datetime.utcnow()
+                    }
+                }
+            )
+            
             # Clean up TOTP session data
-            session.pop("totp_user_id", None)
+            session.pop('totp_user_id', None)
             
             # Initialize regular session
-            init_session(user["_id"])
+            init_session(ObjectId(user_id))
             return redirect(url_for('get_recipes'))
         
-        flash("Invalid TOTP code. Please try again.")
+        flash("Invalid verification code. Please try again.")
     
     return render_template("verify_totp.html", form=form)
 
@@ -247,12 +322,28 @@ def login():
             user = records.find_one({"email": email})
 
             if user and bcrypt.check_password_hash(user["password"], password):
-                # Check if TOTP is enabled
-                if user.get("totp_enabled", False):
-                    session["totp_user_id"] = str(user["_id"])
+                # Check if TOTP is not yet set up
+                if user.get("totp_enabled") == "False":
+                    # Generate new TOTP secret
+                    totp_secret = pyotp.random_base32()
+                    
+                    # Store the user ID and TOTP secret in session temporarily
+                    session['setup_totp_user_id'] = str(user["_id"])
+                    session['temp_totp_secret'] = totp_secret
+                    
+                    # Redirect to TOTP setup
+                    return redirect(url_for('setup_totp'))
+                
+                # If TOTP is already enabled, verify TOTP
+                if user.get("totp_enabled") == "True":
+                    session['totp_user_id'] = str(user["_id"])
                     return redirect(url_for('verify_totp'))
                 
-                # If no TOTP, proceed with normal login
+                # Normal login if TOTP is not required
+                db.users.update_one(
+                    {"_id": user["_id"]},
+                    {"$set": {"last_login": datetime.utcnow()}}
+                )
                 init_session(user["_id"])
                 return redirect(url_for('get_recipes'))
             else:
@@ -263,7 +354,6 @@ def login():
             error = "An error occurred. Please try again later."
 
     return render_template("login.html", form=form, error=error)
-
 #-----signupPage------
 @app.route("/signup", methods=("POST", "GET"))
 def signup():
