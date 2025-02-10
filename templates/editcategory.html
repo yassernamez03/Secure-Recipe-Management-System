@@ -10,6 +10,7 @@
     <p class="edit-category-subtitle">Update the category name below. This will affect all recipes using this category.</p>
 
     <form action="{{ url_for('update_category', category_id=category._id) }}" method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <div class="edit-category-input-field">
         <i class="material-icons prefix">restaurant_menu</i>
         <input id="category_name" name="category_name" type="text" class="validate" value="{{category.category_name}}"

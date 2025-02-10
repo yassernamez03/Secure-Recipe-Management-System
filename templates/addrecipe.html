@@ -4,7 +4,7 @@
 <div class="add_recipe_container">
   <h3>Add Recipe</h3>
   <form id="add-recipe-form" action="{{ url_for('insert_recipe') }}" method="POST">
-
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <div class="form-group">
       <div class="input-field col s12">
         <i class="material-icons prefix">local_dining</i>

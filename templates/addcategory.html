@@ -5,6 +5,7 @@
   <div class="add-category-form-card">
     <h3>Add Category</h3>
     <form action="{{ url_for('insert_category') }}" method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <div class="add-category-input-field">
         <i class="material-icons prefix">restaurant_menu</i>
         <input id="category_name" name="category_name" type="text" class="validate" placeholder="" required>
