@@ -1975,6 +1975,8 @@ select:focus {
     font-weight: bold;
 }
 
+
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .recipe-page .recipe-main-grid {
