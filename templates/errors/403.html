@@ -1,0 +1,18 @@
+{% extends "homebase.html" %}
+
+{% block content %}
+
+<div class="error-container">
+    <div class="error-content">
+        <h1 class="error-code">403</h1>
+        <div class="error-divider"></div>
+        <h2 class="error-title">Internal Server Error</h2>
+        <p class="error-message">Oops! Something went wrong on our end.</p>
+        <p class="error-description">We're working to fix this. Please try again later.</p>
+        <div class="error-actions">
+            <a href="{{ url_for('home') }}" class="btn btn-primary">Return Home</a>
+            <button onclick="window.location.reload()" class="btn btn-secondary">Try Again</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
