@@ -294,7 +294,6 @@ def verify_totp():
             # Clean up TOTP session data
             session.pop('totp_user_id', None)
             
-            # Initialize regular session and set TOTP verification status
             init_session(ObjectId(user_id))
             session['role'] = user['role']
             session['totp_verified'] = True  
