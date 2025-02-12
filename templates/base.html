@@ -31,6 +31,9 @@
                         Cusines</button>
                   <button class="disconnect" onclick="window.location='{{ url_for('add_recipe') }}'">New recipe</button>
                   <button class="disconnect" onclick="window.location='{{ url_for('destroy') }}'">Disconnect</button>
+                  {% if session.get('role') == 'admin' and session.get('totp_verified') and session.get('totp_enabled') == 'True' %}
+                  <button onclick="window.location='{{ url_for('manage_users') }}'" class="disconnect">Manage Users</button>
+                  {% endif %}
             </div>
       </header>
 

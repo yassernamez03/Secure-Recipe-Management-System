@@ -92,6 +92,32 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def totp_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'id' not in session:
+            flash('Please log in first', 'error')
+            return redirect(url_for('login'))
+
+        user = db.users.find_one({'_id': ObjectId(session['id'])})
+        
+        if not user:
+            session.clear()
+            flash('User not found', 'error')
+            return redirect(url_for('login'))
+
+        # Check if 2FA is enabled for user
+        if user.get('totp_enabled', False):
+            # Check if TOTP was verified in this session
+            if not session.get('totp_verified', False):
+                # Store original destination
+                session['next_url'] = request.url
+                flash('Please verify your 2FA code', 'warning')
+                return redirect(url_for('verify_totp'))
+
+        return f(*args, **kwargs)
+    return decorated_function
+
 def init_session(user_id):
     session.permanent = True
     app.permanent_session_lifetime = timedelta(hours=1)
@@ -268,8 +294,11 @@ def verify_totp():
             # Clean up TOTP session data
             session.pop('totp_user_id', None)
             
-            # Initialize regular session
+            # Initialize regular session and set TOTP verification status
             init_session(ObjectId(user_id))
+            session['role'] = user['role']
+            session['totp_verified'] = True  
+            session['totp_enabled'] = user.get('totp_enabled') 
             return redirect(url_for('get_recipes'))
         
         flash("Invalid verification code. Please try again.")
@@ -368,7 +397,7 @@ def signup():
         email = form.email.data.lower().strip()
         password = form.password.data
         confirm = form.conpassword.data
-
+        role = 'user'
         # First check if passwords match
         if password != confirm:
             error = "Passwords do not match"
@@ -411,7 +440,8 @@ def signup():
                 "email": email,
                 "password": hashed_password,
                 "created_at": datetime.utcnow(),
-                "last_login": datetime.utcnow()
+                "last_login": datetime.utcnow(),
+                "role":role
             }
 
             # Insert user into the database
@@ -604,6 +634,43 @@ def recipe_single(recipe_id):
     return render_template("recipepage.html", recipe=recipe)
 # ************************************************
 
+@app.route('/manage_users')
+@login_required
+@totp_required
+def manage_users():
+    users = db.users.find()
+    return render_template('manage_users.html', users=users)
+
+@app.route('/edit_user/<user_id>')
+@login_required
+def edit_user(user_id):
+    user = db.users.find_one({'_id': ObjectId(user_id)})
+    return render_template('edit_user.html', user=user)
+
+@app.route('/update_user/<user_id>', methods=['POST'])
+@login_required
+def update_user(user_id):
+    db.users.update_one(
+        {'_id': ObjectId(user_id)},
+        {
+            '$set': {
+                'username': request.form.get('username'),
+                'email': request.form.get('email'),
+                'role': request.form.get('role')
+            }
+        }
+    )
+    flash('User updated successfully')
+    return redirect(url_for('manage_users'))
+
+@app.route('/delete_user/<user_id>')
+@login_required
+def delete_user(user_id):
+    db.users.delete_one({'_id': ObjectId(user_id)})
+    flash('User deleted successfully')
+    return redirect(url_for('manage_users'))
+
+#**************************************
 @app.route('/recovery', methods=["POST", "GET"])
 def recovery():
     global code, emailSent, resetPass, emailPointed, recFinished

@@ -732,8 +732,379 @@ select:focus {
     /* Slightly larger icon */
 }
 
+/********** Manage Users Page CSS *******/
+
+.users-container {
+    max-width: 1200px;
+    margin: 6em auto 2em;
+    padding: 0 2em;
+    animation: users-fadeIn 0.3s ease-in;
+}
+
+@keyframes users-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.users-row {
+    margin: 2em 0;
+}
+
+.users-header-section {
+    background: white;
+    padding: 2em;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2em;
+}
+
+.users-header-section h3 {
+    color: var(--text);
+    font-size: 2em;
+    margin: 0 0 0.5em 0;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.users-header-section p {
+    color: #64748b;
+    line-height: 1.7;
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.users-collection {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.users-collection-item {
+    padding: 1.2em 1.5em;
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.users-collection-item:last-child {
+    border-bottom: none;
+}
+
+.users-collection-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(4px);
+}
+
+.users-collection-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background-color: var(--primary);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.users-collection-item:hover::before {
+    opacity: 1;
+}
+
+.users-links-bottom-card {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.users-links-bottom-card strong {
+    flex-grow: 1;
+    color: var(--text);
+    font-size: 1.1em;
+    font-weight: 500;
+}
+.users-links-bottom-card span {
+    flex-grow: 1;
+    color: var(--text);
+    font-size: 1.1em;
+    font-weight: 300;
+}
+
+.users-edit-link,
+.users-delete-link {
+    text-decoration: none;
+    font-size: 0.95em;
+    padding: 0.5em 1em;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.users-edit-link {
+    color: var(--primary);
+    background-color: rgba(74, 144, 226, 0.1);
+}
+
+.users-edit-link:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+.users-delete-link {
+    color: var(--danger);
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+.users-delete-link:hover {
+    background-color: var(--danger);
+    color: white;
+}
+
+.users-btn.waves-effect.waves-light {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75em;
+    background-color: var(--primary);
+    color: white;
+    padding: 1em 2em;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1em;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(74, 144, 226, 0.25);
+}
+
+.users-btn.waves-effect.waves-light:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
+}
+
+.users-btn.waves-effect.waves-light:active {
+    transform: translateY(0);
+}
+
+.users-btn .material-icons {
+    font-size: 1.2em;
+}
+
+/* Empty state styling */
+.users-empty-state {
+    text-align: center;
+    padding: 3em 2em;
+    color: #64748b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .users-container {
+        padding: 0 1em;
+        margin-top: 4em;
+    }
+
+    .users-header-section {
+        padding: 1.5em;
+    }
+
+    .users-collection-item {
+        padding: 1em;
+    }
+
+    .users-links-bottom-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5em;
+    }
+
+    .users-links-bottom-card strong {
+        margin-bottom: 0.5em;
+    }
+
+    .users-edit-link,
+    .users-delete-link {
+        width: 100%;
+        text-align: center;
+    }
+}
 
 
+/********** EditUser css *******/
+    
+.edit-user-container {
+    max-width: 900px!important;
+    margin: 6em auto 2em!important  ;
+    padding: 0 2em;
+    animation: edit-user-fadeIn 0.3s ease-in;
+}
+
+@keyframes edit-user-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.edit-user-form-card {
+    background: white;
+    padding: 3em;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-top: 4px solid var(--primary);
+}
+
+.edit-user-form-card h3 {
+    color: var(--text);
+    font-size: 2em;
+    margin: 0 0 0.5em 0;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.edit-user-subtitle {
+    color: var(--grey);
+    margin-bottom: 2em;
+    font-size: 1.1em;
+    line-height: 1.5;
+}
+
+.edit-user-input-field {
+    position: relative;
+    margin: 2em 0;
+    width: 100%!important;
+}
+
+.edit-user-input-field .material-icons.prefix {
+    position: absolute;
+    top: 55%;
+    left: -0.9em;
+    transform: translateY(-100%);
+    color: var(--grey);
+    transition: color 0.3s ease;
+}
+
+.edit-user-input-field input,
+.edit-user-input-field select {
+    width: 100%!important;
+    padding: 0em 0em 0em 1.5em!important;
+    font-size: 1.1em!important;
+    border: 2px solid var(--border)!important;
+    border-radius: 8px!important;
+    transition: all 0.3s ease!important;
+    outline: none!important;
+    background: white!important;
+}
+
+.edit-user-input-field input:focus,
+.edit-user-input-field select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.edit-user-input-field label {
+    position: absolute;
+    left: 3.2em;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1em;
+    color: var(--grey);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    background: white;
+    padding: 0 0.5em;
+}
+
+.edit-user-input-field input:focus + label,
+.edit-user-input-field input:not(:placeholder-shown) + label,
+.edit-user-input-field select:focus + label,
+.edit-user-input-field select:not(:placeholder-shown) + label {
+    top: 0;
+    transform: translateY(-50%) scale(0.85);
+    color: var(--primary);
+}
+
+.edit-user-button-group {
+    display: flex;
+    gap: 1em;
+    margin-top: 2em;
+}
+
+.edit-user-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75em;
+    padding: 1em 2em;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1em;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.edit-user-btn.waves-effect.waves-light {
+    background-color: var(--primary);
+    color: white;
+}
+
+.edit-user-btn.waves-effect.waves-light:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
+}
+
+.edit-user-btn.waves-effect.waves-light.grey {
+    background-color: var(--grey);
+    color: white;
+}
+
+.edit-user-btn.waves-effect.waves-light.grey:hover {
+    background-color: var(--grey-hover);
+    transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .edit-user-container {
+        padding: 0 1em;
+        margin-top: 4em;
+    }
+
+    .edit-user-form-card {
+        padding: 1.5em;
+    }
+
+    .edit-user-button-group {
+        flex-direction: column;
+    }
+
+    .edit-user-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
 /********** CategoryPage css *******/
 
 :root {
@@ -996,21 +1367,21 @@ select:focus {
 .add-category-input-field .material-icons.prefix {
     position: absolute;
     top: 50%;
-    left: -0.9em;
+    left: -1em;
     transform: translateY(-50%);
     color: var(--grey);
     transition: color 0.3s ease;
 }
 
 .add-category-input-field input {
-    width: 100%;
-    padding: 1em 1em 1em 3.5em;
-    font-size: 1.1em;
-    border: 2px solid var(--border);
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    outline: none;
-    background: white;
+    width: 100%!important;
+    padding: 0em 0em 0em 1.5em!important;
+    font-size: 1.1em!important;
+    border: 2px solid var(--border)!important;
+    border-radius: 8px!important;
+    transition: all 0.3s ease!important;
+    outline: none!important;
+    background: white!important;
 }
 
 .add-category-input-field input:focus {
@@ -1031,8 +1402,8 @@ select:focus {
 
 .add-category-input-field label {
     position: absolute;
-    left: 1em;
-    top: 50%;
+    left: 0em;
+    top: 55%;
     transform: translateY(-50%);
     font-size: 1em;
     color: var(--grey);
@@ -1198,16 +1569,16 @@ select:focus {
 }
 
 .edit-category-input-field input {
-    width: 100%;
-    padding: 1em 1em 1em 3.5em;
-    font-size: 1.1em;
-    border: 2px solid rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    outline: none;
-    text-indent: 0.5em;
-    position: relative;
-    background: transparent;
+    width: 100%!important;
+    padding: 0em 0em 0em 1.5em!important;
+    font-size: 1.1em!important;
+    border: 2px solid rgba(0, 0, 0, 0.1)!important;
+    border-radius: 8px!important;
+    transition: all 0.3s ease!important;
+    outline: none!important;
+    text-indent: 0.5em!important;
+    position: relative!important;
+    background: transparent!important;
 }
 
 .edit-category-input-field input:focus {
