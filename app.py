@@ -619,6 +619,7 @@ def add_category():
     return render_template('addcategory.html')
 
 # -----Single Page Recipe------
+
 @app.route('/recipe_single/<recipe_id>')
 @login_required
 def recipe_single(recipe_id):
@@ -631,6 +632,7 @@ def recipe_single(recipe_id):
         return redirect(url_for('get_recipes'))  
     
     return render_template("recipepage.html", recipe=recipe)
+
 # ************************************************
 
 @app.route('/manage_users')
