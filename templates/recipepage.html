@@ -46,18 +46,20 @@
       <section class="recipe-intro">
         <div class="section-header">
           <h2>About this Recipe</h2>
-          <div class="admin-actions">
-            <a href="{{url_for('edit_recipe', recipe_id=recipe._id)}}" class="admin-btn edit-btn">
-              <i class="material-icons">edit</i>
-              Edit Recipe
-            </a>
-            <a href="{{url_for('delete_recipe', recipe_id=recipe._id)}}" 
-               class="admin-btn delete-btn"
-               onclick="return confirm('Are you sure you want to delete this recipe? This action cannot be undone.')">
-              <i class="material-icons">delete</i>
-              Delete Recipe
-            </a>
-          </div>
+          {% if recipe.user_id == current_user_id %}
+            <div class="admin-actions">
+              <a href="{{url_for('edit_recipe', recipe_id=recipe._id)}}" class="admin-btn edit-btn">
+                <i class="material-icons">edit</i>
+                Edit Recipe
+              </a>
+              <a href="{{url_for('delete_recipe', recipe_id=recipe._id)}}" 
+                 class="admin-btn delete-btn"
+                 onclick="return confirm('Are you sure you want to delete this recipe? This action cannot be undone.')">
+                <i class="material-icons">delete</i>
+                Delete Recipe
+              </a>
+            </div>
+          {% endif %}
         </div>
         <p class="intro-text">{{recipe.recipe_intro}}</p>
       </section>

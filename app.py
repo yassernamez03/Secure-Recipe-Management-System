@@ -462,12 +462,10 @@ def signup():
 
 
 # -----Homepage------
+
 @app.route('/get_recipes')
 @login_required
 def get_recipes():
-
-    user_id = session["id"]
-    
     if (request.args.get('recipe_name') is not None 
         or request.args.get('preparation_time') is not None 
         or request.args.get('category_name') is not None):
@@ -488,22 +486,27 @@ def get_recipes():
             categoryregex = "\W*"+request.args.get("category_name")+"\W*"
             categoryname = re.compile(categoryregex, re.IGNORECASE)
 
-        # Filter recipes by user_id and search criteria
+        # Search all recipes regardless of user_id
         recipes = db.recipes.find({
-            "user_id": user_id,
             "$or": [
                 {"recipe_name": recipename},
                 {"preparation_time": preparationtime},
                 {"category_name": categoryname}
             ]
         })
-        return render_template("recipes.html", recipes=recipes, categories=db.categories.find())
         
-    # Filter recipes by user_id only
-    recipes = db.recipes.find({"user_id": user_id})
-    return render_template("recipes.html", recipes=recipes, categories=db.categories.find())
-
-
+        return render_template("recipes.html", 
+                            recipes=recipes, 
+                            categories=db.categories.find(),
+                            current_user_id=session["id"])
+        
+    # Show all recipes
+    recipes = db.recipes.find()
+    return render_template("recipes.html", 
+                        recipes=recipes, 
+                        categories=db.categories.find(),
+                        current_user_id=session["id"])
+    
 # -----Add Recipe------
 @app.route('/add_recipe')
 @login_required
@@ -530,13 +533,13 @@ def insert_recipe():
 @app.route('/edit_recipe/<recipe_id>')
 @login_required
 def edit_recipe(recipe_id):
-
-    
     user_id = session["id"]
-    the_recipe = db.recipes.find_one({"_id": ObjectId(recipe_id), "user_id": user_id})
+    the_recipe = db.recipes.find_one({"_id": ObjectId(recipe_id)})
     
-    if not the_recipe:
-        return redirect(url_for('get_recipes'))  # Redirect if the recipe doesn't belong to the user
+    # Check if recipe exists and user owns it
+    if not the_recipe or the_recipe.get('user_id') != user_id:
+        flash("You don't have permission to edit this recipe", "error")
+        return redirect(url_for('get_recipes'))
     
     all_categories = db.categories.find()
     return render_template('editrecipe.html', recipe=the_recipe, categories=all_categories)
@@ -567,10 +570,16 @@ def update_recipe(recipe_id):
 @app.route('/delete_recipe/<recipe_id>')
 @login_required
 def delete_recipe(recipe_id):
-
-    
     user_id = session["id"]
+    recipe = db.recipes.find_one({"_id": ObjectId(recipe_id)})
+    
+    # Check if recipe exists and user owns it
+    if not recipe or recipe.get('user_id') != user_id:
+        flash("You don't have permission to delete this recipe", "error")
+        return redirect(url_for('get_recipes'))
+    
     db.recipes.delete_one({'_id': ObjectId(recipe_id), "user_id": user_id})
+    flash("Recipe deleted successfully", "success")
     return redirect(url_for('get_recipes'))
 
 # -----Categories funcitionalities------
@@ -623,15 +632,15 @@ def add_category():
 @app.route('/recipe_single/<recipe_id>')
 @login_required
 def recipe_single(recipe_id):
-
-    
-    user_id = session["id"]
-    recipe = db.recipes.find_one({'_id': ObjectId(recipe_id), "user_id": user_id})
+    recipe = db.recipes.find_one({'_id': ObjectId(recipe_id)})
     
     if not recipe:
-        return redirect(url_for('get_recipes'))  
+        return redirect(url_for('get_recipes'))
     
-    return render_template("recipepage.html", recipe=recipe)
+    # Pass the current user's ID to check if they own the recipe
+    return render_template("recipepage.html", 
+                         recipe=recipe,
+                         current_user_id=session["id"])
 
 # ************************************************
 
