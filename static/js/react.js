@@ -55,3 +55,4 @@ const PasswordRequirements = ({ password = '' }) => {
 };
 
 export default PasswordRequirements;
+

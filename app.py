@@ -23,6 +23,8 @@ from datetime import datetime, timedelta
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
+from utils import generate_recipe
+
 app = Flask(__name__)
 secret_key = os.urandom(12).hex()
 app.config['SECRET_KEY'] = secret_key
@@ -514,6 +516,26 @@ def add_recipe():
 
     return render_template('addrecipe.html', categories=db.categories.find())
 
+
+    try:
+        data = request.get_json()
+        prompt = data.get('prompt')
+        
+        if not prompt:
+            return jsonify({'error': 'No prompt provided'}), 400
+        
+        # Generate recipe using your existing generator
+        recipe_data = generate_recipe(prompt)
+        
+        if not recipe_data:
+            return jsonify({'error': 'Failed to generate recipe'}), 500
+            
+        return jsonify(recipe_data)
+        
+    except Exception as e:
+        app.logger.error(f"Error generating recipe: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
 @app.route('/insert_recipe', methods=['POST'])
 @login_required
 def insert_recipe():
@@ -796,9 +818,10 @@ def recovery():
 @app.route("/destroy", methods=("POST", "GET"))
 def destroy():
     if 'id' in session:
-        session.pop('id')
-
+        session.clear()
     return redirect(url_for('login'))
+
+
 
 
 

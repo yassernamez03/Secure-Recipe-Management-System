@@ -78,3 +78,55 @@ document.addEventListener("DOMContentLoaded", function () {
     M.Sidenav.init(sidenavElems, {}); // Initialize only if elements exist
   }
 });
+
+document.getElementById('generateRecipeBtn')?.addEventListener('click', async function() {
+  const prompt = document.getElementById('recipePrompt').value;
+  if (!prompt) {
+      M.toast({html: 'Please enter a recipe description'});
+      return;
+  }
+
+  // Get CSRF token from the meta tag
+  const csrf_token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+  try {
+      const response = await fetch('/generate_recipe_ajax', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrf_token
+          },
+          body: JSON.stringify({ prompt: prompt })
+      });
+
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const recipe = await response.json();
+      
+      // Fill the form fields with generated data
+      document.getElementById('recipe_name').value = recipe.recipe_name;
+      
+      // Update the select dropdown for category
+      const categorySelect = document.getElementById('category_name');
+      const categoryInstance = M.FormSelect.getInstance(categorySelect);
+      categorySelect.value = recipe.category_name;
+      categoryInstance.destroy();
+      M.FormSelect.init(categorySelect);
+      
+      document.getElementById('recipe_intro').value = recipe.recipe_intro;
+      document.getElementById('ingredients').value = recipe.ingredients;
+      document.getElementById('description').value = recipe.description;
+      document.getElementById('preparation_time').value = recipe.preparation_time;
+      document.getElementById('photo_url').value = recipe.photo_url;
+
+      // Update Materialize form fields
+      M.updateTextFields();
+      M.toast({html: 'Recipe generated successfully!'});
+      
+  } catch (error) {
+      console.error('Error:', error);
+      M.toast({html: 'Failed to generate recipe. Please try again.'});
+  }
+});

@@ -63,17 +63,3 @@ def generate_recipe(prompt: str) -> Dict[str, Any]:
     except Exception as e:
         print(f"Error generating recipe: {str(e)}")
         return None
-
-if __name__ == '__main__':
-    # Example usage
-    test_prompts = [
-        "vegetarian lasagna"
-    ]
-    
-    for prompt in test_prompts:
-        print(f"\nGenerating recipe for: {prompt}")
-        recipe = generate_recipe(prompt)
-        if recipe:
-            print(json.dumps(recipe, indent=2))
-        else:
-            print("Failed to generate recipe")

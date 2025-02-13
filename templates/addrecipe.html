@@ -69,6 +69,19 @@
       <i class="material-icons">local_dining</i> Add New Recipe
     </button>
   </form>
+  <div class="generate-recipe-section">
+    <div class="generate-divider">
+        <span>OR</span>
+    </div>
+    <h4>Generate Recipe with AI</h4>
+    <div class="generate-content">
+        <input type="text" id="recipePrompt" placeholder="Describe the recipe you want..." class="recipe-prompt-input">
+        <button id="generateRecipeBtn" class="btn-generate-recipe">
+            <i class="material-icons">auto_awesome</i> Generate Recipe
+        </button>
+    </div>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+  </div>
 </div>
 
 
