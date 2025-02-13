@@ -62,7 +62,7 @@ Talisman(app,
         'connect-src': ["'self'", '*']
     },
     force_https=False,
-    session_cookie_secure=False
+    session_cookie_secure=True
 )
 
 bcrypt = Bcrypt(app)

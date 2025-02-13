@@ -24,28 +24,44 @@ Welcome to the **Recipe Management System**, a Flask-based web application desig
 - **Two-Factor Authentication**: PyOTP
 - **Other Libraries**: Rich (for console output), Flask-Talisman (for security headers), Flask-QRcode (for QR code generation)
 
-
-### Installation
+## Installation
 
 1. **Clone the Repository**
 
    ```bash
    git clone https://github.com/yassernamez03/Recipe-Management-System.git
-   cd Recipe-Management-System 
+   cd Recipe-Management-System
+   ```
 
 2. **Create a Virtual Environment**
-    ```bash
-    python -m venv myvenv
-    .\myvenv\Scripts\activate
+
+   ```bash
+   python -m venv myvenv
+   .\myvenv\Scripts\activate
+   ```
 
 3. **Install Dependencies**
-    ```bash
-    pip install -r requirements.txt
 
-4. **Run the Application**
-    ```bash
-    flask run
+   ```bash
+   pip install -r requirements.txt
+   ```
 
+4. **Set Up Environment Variables**
+
+   Create a `.env` file in the root directory and add the following environment variables:
+
+   ```env
+   SECRET_KEY=your_secret_key
+   MONGO_URI=your_mongodb_uri
+   SENDINBLUE_API_KEY=your_sendinblue_api_key
+   GROQ_API_KEY=your_groq_api_key
+   ```
+
+5. **Run the Application**
+
+   ```bash
+   flask run
+   ```
 
 ## Usage
 
