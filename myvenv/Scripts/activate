@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\admin\Documents\personal projects\New folder\Secure-Recipe-Management-System\myvenv"
+VIRTUAL_ENV="C:\Users\admin\Documents\personal projects\Secure-Recipe-Management-System\myvenv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

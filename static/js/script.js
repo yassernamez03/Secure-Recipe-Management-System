@@ -156,7 +156,7 @@ document
       document.getElementById("ingredients").value = ingredientsList;
       document.getElementById("description").value = recipe.description || '';
       document.getElementById("preparation_time").value =
-        recipe.preparation_time || "";
+        recipe.preparation_time || "" ;
       document.getElementById("photo_url").value = recipe.photo_url || "";
 
       // Update Materialize form fields
