@@ -2151,3 +2151,27 @@ select:focus {
         font-size: 1.5em;
     }
 }
+
+.btn-generate-recipe.loading {
+    position: relative;
+    opacity: 0.8;
+    cursor: wait;
+}
+
+.btn-generate-recipe.loading i.material-icons {
+    animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.btn-generate-recipe:disabled {
+    background-color: #cccccc !important;
+    cursor: not-allowed;
+}

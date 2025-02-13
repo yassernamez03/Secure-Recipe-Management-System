@@ -516,13 +516,16 @@ def add_recipe():
 
     return render_template('addrecipe.html', categories=db.categories.find())
 
-
+# -----Generate Recipe------
+@app.route('/generate_recipe_ajax', methods=['POST'])
+@login_required
+def generate_recipe_ajax():
     try:
         data = request.get_json()
-        prompt = data.get('prompt')
-        
-        if not prompt:
+        if not data or 'prompt' not in data:
             return jsonify({'error': 'No prompt provided'}), 400
+        
+        prompt = data['prompt']
         
         # Generate recipe using your existing generator
         recipe_data = generate_recipe(prompt)
@@ -530,12 +533,21 @@ def add_recipe():
         if not recipe_data:
             return jsonify({'error': 'Failed to generate recipe'}), 500
             
+        # Ensure all required fields are present
+        required_fields = ['recipe_name', 'category_name', 'recipe_intro', 
+                         'ingredients', 'description', 'preparation_time', 'photo_url']
+        
+        for field in required_fields:
+            if field not in recipe_data:
+                recipe_data[field] = ''  # Provide default empty value
+                
         return jsonify(recipe_data)
         
     except Exception as e:
         app.logger.error(f"Error generating recipe: {str(e)}")
-        return jsonify({'error': 'Internal server error'}), 500
-
+        return jsonify({'error': str(e)}), 500
+    
+# -----Insert Recipe------
 @app.route('/insert_recipe', methods=['POST'])
 @login_required
 def insert_recipe():
@@ -566,6 +578,7 @@ def edit_recipe(recipe_id):
     all_categories = db.categories.find()
     return render_template('editrecipe.html', recipe=the_recipe, categories=all_categories)
 
+# -----Update Recipe------
 @app.route('/update_recipe/<recipe_id>', methods=["POST"])
 @login_required
 def update_recipe(recipe_id):
@@ -611,6 +624,7 @@ def categories():
 
     return render_template('categories.html', categories=db.categories.find())
 
+# -----Edit Category------
 @app.route('/edit_category/<category_id>')
 @login_required
 def edit_category(category_id):
@@ -618,6 +632,7 @@ def edit_category(category_id):
     return render_template('editcategory.html',
                            category=db.categories.find_one({'_id': ObjectId(category_id)}))
 
+# -----Update Category------
 @app.route('/update_category/<category_id>', methods=['POST'])
 @login_required
 def update_category(category_id):
@@ -628,6 +643,7 @@ def update_category(category_id):
     )
     return redirect(url_for('categories'))
 
+# -----Delete Category------
 @app.route('/delete_category/<category_id>')
 @login_required
 def delete_category(category_id):
@@ -635,6 +651,7 @@ def delete_category(category_id):
     db.categories.delete_one({'_id': ObjectId(category_id)})
     return redirect(url_for('categories'))
 
+# -----Insert Category------
 @app.route('/insert_category', methods=['POST'])
 @login_required
 def insert_category():
@@ -643,6 +660,7 @@ def insert_category():
     db.categories.insert_one(category_doc)
     return redirect(url_for('categories'))
 
+# -----Add Category------
 @app.route('/add_category')
 @login_required
 def add_category():
@@ -650,7 +668,6 @@ def add_category():
     return render_template('addcategory.html')
 
 # -----Single Page Recipe------
-
 @app.route('/recipe_single/<recipe_id>')
 @login_required
 def recipe_single(recipe_id):
